@@ -30,6 +30,7 @@ __interface CDebugger
     virtual void TLBChanged ( void ) = 0;
 	virtual bool CPUStepStarted ( void ) = 0;
 	virtual void CPUStep ( void ) = 0;
+	virtual void FrameDrawn ( void ) = 0;
 };
 
 class CDebuggerUI :
@@ -60,6 +61,7 @@ protected:
 	void TLBChanged ( void );
 	bool CPUStepStarted ( void );
 	void CPUStep        ( void );
+	void FrameDrawn ( void );
 	
 public:
     void Debug_Reset                ( void );

@@ -1212,6 +1212,33 @@ duk_ret_t CScriptInstance::js_ShowCommands(duk_context* ctx)
 	return 1;
 }
 
+duk_ret_t CScriptInstance::js_ScreenPrint(duk_context* ctx)
+{
+	CScriptInstance* _this = FetchInstance(ctx);
+
+	HDC hdc = _this->m_ScriptSystem->GetScreenDC();
+
+	int nargs = duk_get_top(ctx);
+
+	if (nargs != 3)
+	{
+		duk_pop_n(ctx, nargs);
+		return 1;
+	}
+
+	int x = duk_to_int(ctx, 0);
+	int y = duk_to_int(ctx, 1);
+
+	const char* text = duk_to_string(ctx, 2);
+
+	int nChars = strlen(text);
+
+	TextOut(hdc, x, y, text, nChars);
+
+	duk_pop_n(ctx, nargs);
+	return 1;
+}
+
 ////////////
 
 

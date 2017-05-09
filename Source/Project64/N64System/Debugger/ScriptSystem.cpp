@@ -27,10 +27,12 @@ CScriptSystem::CScriptSystem(CDebuggerUI* debugger)
 	m_HookCPUExec = new CScriptHook();
 	m_HookCPURead = new CScriptHook();
 	m_HookCPUWrite = new CScriptHook();
+	m_HookFrameDrawn = new CScriptHook();
 
 	RegisterHook("exec", m_HookCPUExec);
 	RegisterHook("read", m_HookCPURead);
 	RegisterHook("write", m_HookCPUWrite);
+	RegisterHook("draw", m_HookFrameDrawn);
 
 	HMODULE hInst = GetModuleHandle(NULL);
 	HRSRC hRes = FindResource(hInst, MAKEINTRESOURCE(IDR_JSAPI_TEXT), "TEXT");
@@ -50,6 +52,7 @@ CScriptSystem::~CScriptSystem()
 	delete m_HookCPUExec;
 	delete m_HookCPURead;
 	delete m_HookCPUWrite;
+	delete m_HookFrameDrawn;
 	UnregisterHooks();
 	free(m_APIScript);
 }
@@ -126,7 +129,8 @@ bool CScriptSystem::HasCallbacksForInstance(CScriptInstance* scriptInstance)
 	return
 		m_HookCPUExec->HasContext(scriptInstance) ||
 		m_HookCPURead->HasContext(scriptInstance) ||
-		m_HookCPUWrite->HasContext(scriptInstance);
+		m_HookCPUWrite->HasContext(scriptInstance) ||
+		m_HookFrameDrawn->HasContext(scriptInstance);
 }
 
 void CScriptSystem::ClearCallbacksForInstance(CScriptInstance* scriptInstance)
@@ -134,6 +138,7 @@ void CScriptSystem::ClearCallbacksForInstance(CScriptInstance* scriptInstance)
 	m_HookCPUExec->RemoveByInstance(scriptInstance);
 	m_HookCPURead->RemoveByInstance(scriptInstance);
 	m_HookCPUWrite->RemoveByInstance(scriptInstance);
+	m_HookFrameDrawn->RemoveByInstance(scriptInstance);
 }
 
 void CScriptSystem::RegisterHook(const char* hookId, CScriptHook* cbList)

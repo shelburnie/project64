@@ -482,3 +482,42 @@ void CDebuggerUI::CPUStep()
 		//m_StackTrace->pop_back();
 	}
 }
+
+void CDebuggerUI::FrameDrawn()
+{
+	static HWND hMainWnd = NULL;
+
+	static HFONT monoFont = CreateFont(-11, 0, 0, 0,
+		FW_DONTCARE, FALSE, FALSE, FALSE, DEFAULT_CHARSET,
+		OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS,
+		PROOF_QUALITY, FF_DONTCARE, "Consolas"
+	);
+
+	if (hMainWnd == NULL)
+	{
+		RenderWindow* mainWindow = g_Plugins->MainWindow();
+
+		if (mainWindow == NULL)
+		{
+			return;
+		}
+
+		hMainWnd = (HWND)mainWindow->GetWindowHandle();
+	}
+	
+	HDC hdc = GetDC(hMainWnd);
+	
+	CRect rt;
+
+	GetClientRect(hMainWnd, &rt);
+	SetBkColor(hdc, RGB(0, 0, 0));
+	
+	SelectObject(hdc, monoFont);
+	SetTextColor(hdc, RGB(255, 255, 255));
+	SetBkColor(hdc, RGB(0, 0, 0));
+
+	m_ScriptSystem->SetScreenDC(hdc);
+	m_ScriptSystem->HookFrameDrawn()->InvokeAll();
+	
+	ReleaseDC(hMainWnd, hdc);
+}

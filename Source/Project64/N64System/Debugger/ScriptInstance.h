@@ -152,6 +152,8 @@ private:
 	static duk_ret_t js_Pause(duk_context*); // () ; pauses emulation
 	static duk_ret_t js_ShowCommands(duk_context*); // ([address]) ; shows commands window
 
+	static duk_ret_t js_ScreenPrint(duk_context*); // (x, y, text)
+
 	static constexpr duk_function_list_entry NativeFunctions[] =
 	{
 		{ "addCallback",    js_AddCallback,    DUK_VARARGS },
@@ -186,6 +188,8 @@ private:
 		{ "consoleClear",   js_ConsoleClear,   DUK_VARARGS },
 		{ "pause",          js_Pause,          DUK_VARARGS },
 		{ "showCommands",   js_ShowCommands,   DUK_VARARGS },
+
+		{ "screenPrint",    js_ScreenPrint,    DUK_VARARGS },
 		{ NULL, NULL, 0 }
 	};
 };

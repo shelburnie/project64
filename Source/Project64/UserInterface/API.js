@@ -121,6 +121,13 @@ const console = {
 	}
 }
 
+const screen = {
+    print: function(x, y, text)
+    {
+        _native.screenPrint(x, y, text)
+    }
+}
+
 const events = (function()
 {
 	var callbacks = {};
@@ -142,6 +149,10 @@ const events = (function()
 		onwrite: function(addr, callback)
 		{
 			events.on('write', callback, addr)
+		},
+		ondraw: function(callback)
+		{
+		    events.on('draw', callback, 0)
 		},
 		off: function(){},
 		clear: function(){},

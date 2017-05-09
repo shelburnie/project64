@@ -55,11 +55,26 @@ private:
 	CScriptHook* m_HookCPURead;
 	CScriptHook* m_HookCPUWrite;
 
+	CScriptHook* m_HookFrameDrawn;
+
 	void RegisterHook(const char* hookId, CScriptHook* cbList); // associate string id with callback list
 	void UnregisterHooks();
 
+	HDC m_ScreenDC;
+
 public:
 	// Returns true if any of the script hooks have callbacks for scriptInstance
+
+
+	void SetScreenDC(HDC hdc)
+	{
+		m_ScreenDC = hdc;
+	}
+
+	HDC GetScreenDC()
+	{
+		return m_ScreenDC;
+	}
 
 	inline vector<char*>* LogData()
 	{
@@ -98,5 +113,10 @@ public:
 	CScriptHook* HookCPUWrite()
 	{
 		return m_HookCPUWrite;
+	}
+
+	CScriptHook* HookFrameDrawn()
+	{
+		return m_HookFrameDrawn;
 	}
 };
