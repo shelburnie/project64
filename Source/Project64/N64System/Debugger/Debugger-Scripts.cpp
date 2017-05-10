@@ -47,14 +47,13 @@ LRESULT CDebugScripts::OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
 	m_EvalEdit.Attach(GetDlgItem(IDC_EVAL_EDIT));
 	m_EvalEdit.SetScriptWindow(this);
-
-	m_ConsoleEdit.Attach(GetDlgItem(IDC_CONSOLE_EDIT));
-
 	m_EvalEdit.SetFont(monoFont);
-	m_ConsoleEdit.SetFont(monoFont);
-
 	m_EvalEdit.EnableWindow(FALSE);
 
+	m_ConsoleEdit.Attach(GetDlgItem(IDC_CONSOLE_EDIT));
+	m_ConsoleEdit.SetLimitText(0);
+	m_ConsoleEdit.SetFont(monoFont);
+	
 	RefreshList();
 
 	WindowCreated();
