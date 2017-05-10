@@ -471,6 +471,8 @@
 #define IDC_DMA_LIST                    1300
 #define IDC_CLEAR_BTN                   1302
 #define IDC_DMA_RAM_EDIT                1303
+#define IDC_CLEAR_BTN2                  1303
+#define IDC_COPY_BTN                    1303
 #define IDC_BUTTON1                     1305
 #define IDC_DMA_ROM_EDIT                1306
 #define IDC_TRACE_STATIC                1307

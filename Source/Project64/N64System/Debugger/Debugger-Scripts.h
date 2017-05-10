@@ -98,6 +98,7 @@ public:
 
 	void ConsolePrint(const char* text);
 	void ConsoleClear();
+	void ConsoleCopy();
 
 	void RefreshList();
 	void RefreshConsole();
@@ -136,6 +137,7 @@ public:
 		DLGRESIZE_CONTROL(IDC_CONSOLE_EDIT, DLSZ_SIZE_X | DLSZ_SIZE_Y)
 		DLGRESIZE_CONTROL(IDC_SCRIPT_LIST, DLSZ_SIZE_Y)
 		DLGRESIZE_CONTROL(IDC_CLEAR_BTN, DLSZ_MOVE_X)
+		DLGRESIZE_CONTROL(IDC_COPY_BTN, DLSZ_MOVE_X)
 	END_DLGRESIZE_MAP()
 
 };

@@ -102,6 +102,29 @@ void CDebugScripts::ConsoleClear()
 	m_ConsoleEdit.SetWindowTextA("");
 }
 
+void CDebugScripts::ConsoleCopy()
+{
+	if (!OpenClipboard())
+	{
+		return;
+	}
+
+	EmptyClipboard();
+
+	size_t nChars = m_ConsoleEdit.GetWindowTextLengthA() + 1;
+
+	HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, nChars);
+	
+	char* memBuf = (char*) GlobalLock(hMem);
+	m_ConsoleEdit.GetWindowTextA(memBuf, nChars);
+
+	GlobalUnlock(hMem);
+	HANDLE hRes = SetClipboardData(CF_TEXT, hMem);
+	
+	GlobalFree(hMem);
+	CloseClipboard();
+}
+
 void CDebugScripts::RefreshList()
 {
 	int nIndex = m_ScriptList.GetSelectedIndex();
@@ -147,6 +170,9 @@ LRESULT CDebugScripts::OnClicked(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*
 		break;
 	case IDC_CLEAR_BTN:
 		ConsoleClear();
+		break;
+	case IDC_COPY_BTN:
+		ConsoleCopy();
 		break;
 	}
 	return FALSE;
