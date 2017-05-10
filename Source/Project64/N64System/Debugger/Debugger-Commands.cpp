@@ -54,10 +54,12 @@ LRESULT	CDebugCommandsView::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARA
 	m_AddressEdit.SetLimitText(8);
 
 	// Setup PC register input
-
+	
 	m_PCEdit.Attach(GetDlgItem(IDC_PC_EDIT));
 	m_PCEdit.SetDisplayType(CEditNumber::DisplayHex);
 	m_PCEdit.SetLimitText(8);
+
+	m_bIgnorePCChange = true;
 	m_PCEdit.SetValue(0x80000180, false, true);
 
 	// Setup View PC button
@@ -365,7 +367,7 @@ void CDebugCommandsView::ShowAddress(DWORD address, BOOL top)
 			m_HistoryIndex = m_History.size() - 1;
 			ToggleHistoryButtons();
 		}
-		
+
 		m_bIgnorePCChange = true;
 		m_PCEdit.SetValue(g_Reg->m_PROGRAM_COUNTER, false, true);
 
@@ -1001,7 +1003,7 @@ LRESULT CDebugCommandsView::OnPCChanged(WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 {
 	if (m_bIgnorePCChange)
 	{
-		m_bIgnoreAddrChange = true;
+		m_bIgnorePCChange = false;
 		return 0;
 	}
 	if (g_Reg != NULL && m_Breakpoints->isDebugging())
