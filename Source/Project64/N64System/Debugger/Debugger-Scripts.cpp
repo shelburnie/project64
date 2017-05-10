@@ -145,6 +145,9 @@ LRESULT CDebugScripts::OnClicked(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*
 	case ID_POPUP_STOP:
 		StopSelected();
 		break;
+	case IDC_CLEAR_BTN:
+		ConsoleClear();
+		break;
 	}
 	return FALSE;
 }
