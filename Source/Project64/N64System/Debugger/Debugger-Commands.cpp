@@ -320,7 +320,7 @@ static inline bool OpIsJump(OPCODE opCode)
 		if ((opCode.rs & 0x10) != 0)
 		{
 			uint32_t fn = opCode.funct;
-			if (fn >= R4300i_COP0_CO_TLBR && fn <= R4300i_COP0_CO_ERET)
+			if (fn == R4300i_COP0_CO_ERET)
 			{
 				return true;
 			}
