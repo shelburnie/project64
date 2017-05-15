@@ -12,6 +12,7 @@
 #include "stdafx.h"
 
 #include "Debugger-RegisterTabs.h"
+#include "OpInfo.h"
 
 bool CRegisterTabs::m_bColorsEnabled = false;
 
@@ -219,169 +220,6 @@ void CRegisterTabs::RefreshEdits()
 	}
 }
 
-static bool OpReadsGPR(OPCODE opCode, int nReg)
-{
-	uint32_t op = opCode.op;
-
-	if (op >= R4300i_LDL && op <= R4300i_LWU ||
-		op >= R4300i_ADDI && op <= R4300i_XORI ||
-		op == R4300i_LD ||
-		op == R4300i_BGTZ || op == R4300i_BGTZL ||
-		op == R4300i_BLEZ || op == R4300i_BLEZL)
-	{
-		if (opCode.rs == nReg)
-		{
-			return true;
-		}
-	}
-
-	if (op >= R4300i_SB && op <= R4300i_SWR ||
-		op >= R4300i_SC && op <= R4300i_SD ||
-		op == R4300i_BEQ || op == R4300i_BEQL ||
-		op == R4300i_BNE || op == R4300i_BNEL)
-	{
-		// stores read value and index
-		if (opCode.rs == nReg || opCode.rt == nReg)
-		{
-			return true;
-		}
-	}
-	
-	if (op == R4300i_SPECIAL)
-	{
-		uint32_t fn = opCode.funct;
-
-		switch (fn)
-		{
-		case R4300i_SPECIAL_MTLO:
-		case R4300i_SPECIAL_MTHI:
-		case R4300i_SPECIAL_JR:
-		case R4300i_SPECIAL_JALR:
-			if (opCode.rs == nReg)
-			{
-				return true;
-			}
-			break;
-		case R4300i_SPECIAL_SLL:
-		case R4300i_SPECIAL_SRL:
-		case R4300i_SPECIAL_SRA:
-			if (opCode.rt == nReg)
-			{
-				return true;
-			}
-			break;
-		}
-
-		if (fn >= R4300i_SPECIAL_SLLV && fn <= R4300i_SPECIAL_SRAV ||
-			fn >= R4300i_SPECIAL_DSLLV && fn <= R4300i_SPECIAL_DSRAV ||
-			fn >= R4300i_SPECIAL_DIVU && fn <= R4300i_SPECIAL_DSUBU)
-		{
-			// two register operands
-			if (opCode.rt == nReg || opCode.rs == nReg)
-			{
-				return true;
-			}
-		}
-	}
-		
-	return false;
-}
-
-static bool OpWritesGPR(OPCODE opCode, int nReg)
-{
-	uint32_t op = opCode.op;
-
-	if (op >= R4300i_LDL && op <= R4300i_LWU ||
-		op >= R4300i_ADDI && op <= R4300i_XORI ||
-		op == R4300i_LUI || op == R4300i_LD)
-	{
-		// loads write value
-		if (opCode.rt == nReg)
-		{
-			return true;
-		}
-	}
-
-	if (op == R4300i_JAL)
-	{
-		if (nReg == 31) // RA
-		{
-			return true;
-		}
-	}
-
-	if (op == R4300i_SPECIAL)
-	{
-		uint32_t fn = opCode.funct;
-		
-		switch (fn)
-		{
-		case R4300i_SPECIAL_MFLO:
-		case R4300i_SPECIAL_MFHI:
-		case R4300i_SPECIAL_SLL:
-		case R4300i_SPECIAL_SRL:
-		case R4300i_SPECIAL_SRA:
-			if (opCode.rd == nReg)
-			{
-				return true;
-			}
-			break;
-		}
-
-		if (fn >= R4300i_SPECIAL_SLLV && fn <= R4300i_SPECIAL_SRAV ||
-			fn >= R4300i_SPECIAL_DSLLV && fn <= R4300i_SPECIAL_DSRAV ||
-			fn >= R4300i_SPECIAL_DIVU && fn <= R4300i_SPECIAL_DSUBU ||
-			fn == R4300i_SPECIAL_JALR)
-		{
-			// result register
-			if (opCode.rd == nReg)
-			{
-				return true;
-			}
-		}
-	}
-	
-	return false;
-}
-
-static bool OpReadsLO(OPCODE opCode)
-{
-	if (opCode.op == R4300i_SPECIAL && opCode.funct == R4300i_SPECIAL_MFLO)
-	{
-		return true;
-	}
-	return false;
-}
-
-static bool OpWritesLO(OPCODE opCode)
-{
-	if (opCode.op == R4300i_SPECIAL && opCode.funct == R4300i_SPECIAL_MTLO)
-	{
-		return true;
-	}
-	return false;
-}
-
-// todo add mult, div etc
-
-static bool OpReadsHI(OPCODE opCode)
-{
-	if (opCode.op == R4300i_SPECIAL && opCode.funct == R4300i_SPECIAL_MFHI)
-	{
-		return true;
-	}
-	return false;
-}
-
-static bool OpWritesHI(OPCODE opCode)
-{
-	if (opCode.op == R4300i_SPECIAL && opCode.funct == R4300i_SPECIAL_MTHI)
-	{
-		return true;
-	}
-	return false;
-}
-
 INT_PTR CALLBACK CRegisterTabs::TabProcGPR(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	if (msg == WM_INITDIALOG)
@@ -406,27 +244,27 @@ INT_PTR CALLBACK CRegisterTabs::TabProcGPR(HWND hDlg, UINT msg, WPARAM wParam, L
 		HWND hWnd = (HWND)lParam;
 		int ctrlId = ::GetWindowLong(hWnd, GWL_ID);
 		
-		OPCODE opCode;
-		g_MMU->LW_VAddr(g_Reg->m_PROGRAM_COUNTER, opCode.Hex);
+		COpInfo opInfo;
+		g_MMU->LW_VAddr(g_Reg->m_PROGRAM_COUNTER, opInfo.m_OpCode.Hex);
 
 		bool bOpReads = false;
 		bool bOpWrites = false;
 
 		if (ctrlId == IDC_LO_EDIT)
 		{
-			bOpReads = OpReadsLO(opCode);
-			bOpWrites = !bOpReads && OpWritesLO(opCode);
+			bOpReads = opInfo.ReadsLO();
+			bOpWrites = !bOpReads && opInfo.WritesLO();
 		}
 		else if (ctrlId == IDC_HI_EDIT)
 		{
-			bOpReads = OpReadsHI(opCode);
-			bOpWrites = !bOpReads && OpWritesHI(opCode);
+			bOpReads = opInfo.ReadsHI();
+			bOpWrites = !bOpReads && opInfo.WritesHI();
 		}
 		else
 		{
 			int nReg = MapEdit(ctrlId, GPREditIds);
-			bOpReads = OpReadsGPR(opCode, nReg);
-			bOpWrites = OpWritesGPR(opCode, nReg);
+			bOpReads = opInfo.ReadsGPR(nReg);
+			bOpWrites = opInfo.WritesGPR(nReg);
 		}
 		
 		if (bOpReads && bOpWrites)

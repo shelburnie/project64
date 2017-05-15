@@ -132,6 +132,7 @@
     <ClInclude Include="N64System\Debugger\Debugger-StackTrace.h" />
     <ClInclude Include="N64System\Debugger\Debugger-DMALogView.h" />
     <ClInclude Include="N64System\Debugger\DMALog.h" />
+    <ClInclude Include="N64System\Debugger\OpInfo.h" />
     <ClInclude Include="N64System\Debugger\ScriptHook.h" />
     <ClInclude Include="N64System\Debugger\ScriptInstance.h" />
     <ClInclude Include="N64System\Debugger\Debugger-AddBreakpoint.h" />
