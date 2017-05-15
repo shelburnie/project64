@@ -70,7 +70,7 @@ LRESULT CDebugStackTrace::OnListDblClicked(NMHDR* pNMHDR)
 
 	m_Debugger->Debug_ShowCommandsLocation(address, true);
 
-	return CDRF_DODEFAULT;
+	return 0;
 }
 
 void CDebugStackTrace::RefreshList()

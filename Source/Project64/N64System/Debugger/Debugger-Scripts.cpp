@@ -188,7 +188,7 @@ LRESULT	CDebugScripts::OnScriptListDblClicked(NMHDR* pNMHDR)
 
 	RunSelected();
 	
-	return CDRF_DODEFAULT;
+	return 0;
 }
 
 void CDebugScripts::RefreshStatus()
@@ -228,7 +228,7 @@ LRESULT	CDebugScripts::OnScriptListClicked(NMHDR* pNMHDR)
 	
 	RefreshStatus();
 
-	return CDRF_DODEFAULT;
+	return 0;
 }
 
 LRESULT	CDebugScripts::OnScriptListRClicked(NMHDR* pNMHDR)
@@ -252,7 +252,7 @@ LRESULT	CDebugScripts::OnScriptListRClicked(NMHDR* pNMHDR)
 
 	DestroyMenu(hMenu);
 
-	return CDRF_DODEFAULT;
+	return 0;
 }
 
 LRESULT CDebugScripts::OnScriptListCustomDraw(NMHDR* pNMHDR)

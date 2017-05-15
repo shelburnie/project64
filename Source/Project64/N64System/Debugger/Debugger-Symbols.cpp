@@ -111,7 +111,7 @@ LRESULT	CDebugSymbols::OnListDblClicked(NMHDR* pNMHDR)
 		m_Debugger->Debug_ShowMemoryLocation(symbol->m_Address, true);
 	}
 
-	return CDRF_DODEFAULT;
+	return 0;
 }
 
 void CDebugSymbols::Refresh()
