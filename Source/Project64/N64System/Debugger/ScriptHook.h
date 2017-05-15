@@ -3,6 +3,7 @@
 #include <stdafx.h>
 
 class CScriptInstance;
+class CScriptSystem;
 
 class CScriptHook
 {
@@ -15,11 +16,13 @@ private:
 		bool bOnce;
 	} JSCALLBACK;
 
-	int m_NextCallbackId;
+	CScriptSystem* m_ScriptSystem;
+
+	//int m_NextCallbackId;
 	vector<JSCALLBACK> m_Callbacks;
 
 public:
-	CScriptHook();
+	CScriptHook(CScriptSystem* scriptSystem);
 	~CScriptHook();
 	int Add(CScriptInstance* scriptInstance, void* heapptr, uint32_t tag = 0, bool bOnce = false);
 	void InvokeAll();

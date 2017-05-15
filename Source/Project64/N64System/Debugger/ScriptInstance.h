@@ -129,6 +129,7 @@ private:
 	static duk_ret_t js_ioClose        (duk_context*); // (fd) ; file or socket
 	static duk_ret_t js_MsgBox         (duk_context*); // (message, caption)
 	static duk_ret_t js_AddCallback    (duk_context*); // (hookId, callback, tag) ; external events
+	static duk_ret_t js_RemoveCallback (duk_context*); // (callbackId)
 	static duk_ret_t js_GetPCVal       (duk_context*); // ()
 	static duk_ret_t js_SetPCVal       (duk_context*); // (value)
 	static duk_ret_t js_GetGPRVal      (duk_context*); // (regNum)
@@ -157,6 +158,7 @@ private:
 	static constexpr duk_function_list_entry NativeFunctions[] =
 	{
 		{ "addCallback",    js_AddCallback,    DUK_VARARGS },
+		{ "removeCallback", js_RemoveCallback, DUK_VARARGS },
 		{ "setPCVal",       js_SetPCVal,       DUK_VARARGS },
 		{ "getPCVal",       js_GetPCVal,       DUK_VARARGS },
 		{ "setGPRVal",      js_SetGPRVal,      DUK_VARARGS },

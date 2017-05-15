@@ -62,6 +62,8 @@ private:
 
 	HDC m_ScreenDC;
 
+	int m_NextCallbackId;
+
 public:
 	// Returns true if any of the script hooks have callbacks for scriptInstance
 
@@ -94,7 +96,11 @@ public:
 	// Remove all hooked callbacks for an instance
 	void ClearCallbacksForInstance(CScriptInstance* scriptInstance);
 
+	void RemoveCallbackById(int callbackId);
+
 	CScriptHook* GetHook(const char* hookId);
+
+	int GetNextCallbackId();
 	
 	void DeleteStoppedInstances();
 	INSTANCE_STATE GetInstanceState(char* scriptName);

@@ -684,6 +684,17 @@ duk_ret_t CScriptInstance::js_AddCallback(duk_context* ctx)
 	return 1;
 }
 
+duk_ret_t CScriptInstance::js_RemoveCallback(duk_context* ctx)
+{
+	CScriptInstance* _this = FetchInstance(ctx);
+	int callbackId = duk_get_int(ctx, 0);
+
+	_this->m_ScriptSystem->RemoveCallbackById(callbackId);
+
+	duk_pop(ctx);
+	return 1;
+}
+
 duk_ret_t CScriptInstance::js_GetPCVal(duk_context* ctx)
 {
 	duk_push_uint(ctx, g_Reg->m_PROGRAM_COUNTER);

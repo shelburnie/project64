@@ -2,17 +2,18 @@
 
 #include "ScriptHook.h"
 #include "ScriptInstance.h"
+#include "ScriptSystem.h"
 
 int CScriptHook::Add(CScriptInstance* scriptInstance, void* heapptr, uint32_t param, bool bOnce)
 {
 	JSCALLBACK jsCallback;
 	jsCallback.scriptInstance = scriptInstance;
 	jsCallback.heapptr = heapptr;
-	jsCallback.callbackId = m_NextCallbackId;
+	jsCallback.callbackId = m_ScriptSystem->GetNextCallbackId();
 	jsCallback.param = param;
 	jsCallback.bOnce = bOnce;
 	m_Callbacks.push_back(jsCallback);
-	return m_NextCallbackId++;
+	return jsCallback.callbackId;
 }
 
 void CScriptHook::InvokeById(int callbackId)
@@ -100,8 +101,9 @@ bool CScriptHook::HasContext(CScriptInstance* scriptInstance)
 	return false;
 }
 
-CScriptHook::CScriptHook()
+CScriptHook::CScriptHook(CScriptSystem* scriptSystem)
 {
+	m_ScriptSystem = scriptSystem;
 }
 
 CScriptHook::~CScriptHook()

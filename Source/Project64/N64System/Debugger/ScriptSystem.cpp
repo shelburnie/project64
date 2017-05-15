@@ -22,12 +22,14 @@ CScriptSystem::CScriptSystem(CDebuggerUI* debugger)
 	WSADATA wsaData;
 	WSAStartup(MAKEWORD(2, 2), &wsaData);
 
+	m_NextCallbackId = 0;
+
 	m_Debugger = debugger;
 
-	m_HookCPUExec = new CScriptHook();
-	m_HookCPURead = new CScriptHook();
-	m_HookCPUWrite = new CScriptHook();
-	m_HookFrameDrawn = new CScriptHook();
+	m_HookCPUExec = new CScriptHook(this);
+	m_HookCPURead = new CScriptHook(this);
+	m_HookCPUWrite = new CScriptHook(this);
+	m_HookFrameDrawn = new CScriptHook(this);
 
 	RegisterHook("exec", m_HookCPUExec);
 	RegisterHook("read", m_HookCPURead);
@@ -141,6 +143,14 @@ void CScriptSystem::ClearCallbacksForInstance(CScriptInstance* scriptInstance)
 	m_HookFrameDrawn->RemoveByInstance(scriptInstance);
 }
 
+void CScriptSystem::RemoveCallbackById(int callbackId)
+{
+	m_HookCPUExec->RemoveById(callbackId);
+	m_HookCPURead->RemoveById(callbackId);
+	m_HookCPUWrite->RemoveById(callbackId);
+	m_HookFrameDrawn->RemoveById(callbackId);
+}
+
 void CScriptSystem::RegisterHook(const char* hookId, CScriptHook* cbList)
 {
 	HOOKENTRY hook = { hookId, cbList };
@@ -163,4 +173,9 @@ CScriptHook* CScriptSystem::GetHook(const char* hookId)
 		}
 	}
 	return NULL;
+}
+
+int CScriptSystem::GetNextCallbackId()
+{
+	return m_NextCallbackId++;
 }
