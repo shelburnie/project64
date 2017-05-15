@@ -1448,6 +1448,8 @@ BEGIN
         MENUITEM "Restore",                     ID_POPUPMENU_RESTORE
         MENUITEM "Restore all",                 ID_POPUPMENU_RESTOREALL
         MENUITEM SEPARATOR
+        MENUITEM "Follow jump",                 ID_POPUPMENU_FOLLOWJUMP
+        MENUITEM SEPARATOR
         MENUITEM "Add symbol...",               ID_POPUPMENU_ADDSYMBOL
     END
 END

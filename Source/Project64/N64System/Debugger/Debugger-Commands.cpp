@@ -15,6 +15,7 @@
 #include "Symbols.h"
 #include "Breakpoints.h"
 #include "Assembler.h"
+#include "OpInfo.h"
 
 #include <Project64-core/N64System/Mips/OpCodeName.h>
 
@@ -114,6 +115,14 @@ LRESULT	CDebugCommandsView::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARA
 	m_AddressEdit.SetValue(0x80000000, false, true);
 	ShowAddress(0x80000000, TRUE);
 	
+	if (m_Breakpoints->isDebugging())
+	{
+		m_ViewPCButton.EnableWindow(TRUE);
+		m_StepButton.EnableWindow(TRUE);
+		m_SkipButton.EnableWindow(TRUE);
+		m_GoButton.EnableWindow(TRUE);
+	}
+
 	WindowCreated();
 	return TRUE;
 }
@@ -249,89 +258,6 @@ void CDebugCommandsView::AddBranchArrow(int startPos, int endPos)
 	m_BranchArrows.push_back({ startPos, endPos, startMargin, endMargin, margin });
 }
 
-static inline bool OpIsBranch(OPCODE opCode)
-{
-	uint32_t op = opCode.op;
-
-	if (op >= R4300i_BEQ && op <= R4300i_BGTZ)
-	{
-		return true;
-	}
-
-	if (op >= R4300i_BEQL && op <= R4300i_BGTZL)
-	{
-		return true;
-	}
-
-	if (op == R4300i_REGIMM)
-	{
-		uint32_t rt = opCode.rt;
-
-		if (rt >= R4300i_REGIMM_BLTZ && rt <= R4300i_REGIMM_BGEZL)
-		{
-			return true;
-		}
-
-		if (rt >= R4300i_REGIMM_BLTZAL && rt <= R4300i_REGIMM_BGEZALL)
-		{
-			return true;
-		}
-	}
-
-	if (op == R4300i_CP1 && opCode.fmt == R4300i_COP1_BC)
-	{
-		return true;
-	}
-
-	return false;
-}
-
-static inline bool OpIsJump(OPCODE opCode)
-{
-	// j, jal, jr, jalr, exception
-
-	uint32_t op = opCode.op;
-	
-	if (op == R4300i_J || op == R4300i_JAL)
-	{
-		return true;
-	}
-	
-	if (op == R4300i_SPECIAL)
-	{
-		uint32_t fn = opCode.funct;
-
-		if (fn >= R4300i_SPECIAL_JR && fn <= R4300i_SPECIAL_BREAK)
-		{
-			return true;
-		}
-	}
-
-	if (op == R4300i_REGIMM)
-	{
-		uint32_t rt = opCode.rt;
-
-		if (rt >= R4300i_REGIMM_TGEI && rt <= R4300i_REGIMM_TNEI)
-		{
-			return true;
-		}
-	}
-
-	if (op == R4300i_CP0)
-	{
-		if ((opCode.rs & 0x10) != 0)
-		{
-			uint32_t fn = opCode.funct;
-			if (fn == R4300i_COP0_CO_ERET)
-			{
-				return true;
-			}
-		}
-	}
-
-	return false;
-}
-
 void CDebugCommandsView::ShowAddress(DWORD address, BOOL top)
 {
 	if (top == TRUE)
@@ -398,7 +324,8 @@ void CDebugCommandsView::ShowAddress(DWORD address, BOOL top)
 		
 		m_CommandList.AddItem(i, CCommandList::COL_ADDRESS, addrStr);
 
-		OPCODE OpCode;
+		COpInfo OpInfo;
+		OPCODE& OpCode = OpInfo.m_OpCode;
 		bool bAddrOkay = false;
 
 		if (AddressSafe(opAddr))
@@ -440,7 +367,7 @@ void CDebugCommandsView::ShowAddress(DWORD address, BOOL top)
 		}
 
 		// Add arrow for branch instruction
-		if (OpIsBranch(OpCode))
+		if (OpInfo.IsBranch())
 		{
 			int startPos = i;
 			int endPos = startPos + (int16_t)OpCode.offset + 1;
@@ -543,70 +470,59 @@ LRESULT CDebugCommandsView::OnCustomDrawList(NMHDR* pNMHDR)
 	// (nSubItem == 1 || nSubItem == 2) 
 
 	// cmd & args
-	OPCODE opCode;
+	COpInfo OpInfo;
+	OPCODE& OpCode = OpInfo.m_OpCode;
 	bool bAddrOkay = false;
 
 	if (AddressSafe(address))
 	{
-		bAddrOkay = g_MMU->LW_VAddr(address, opCode.Hex);
+		bAddrOkay = g_MMU->LW_VAddr(address, OpCode.Hex);
 	}
-
+	
+	struct {
+		COLORREF bg;
+		COLORREF fg;
+	} colors;
+	
 	if (!bAddrOkay)
 	{
-		// unmapped/invalid
-		pLVCD->clrTextBk = RGB(0xFF, 0xFF, 0xFF);
-		pLVCD->clrText = RGB(0xFF, 0x00, 0x00);
+		colors = { 0xFFFFFF, 0xFF0000 };
 	}
 	else if (address == pc && m_Breakpoints->isDebugging())
 	{
-		// pc
-		pLVCD->clrTextBk = RGB(0xFF, 0xFF, 0xAA);
-		pLVCD->clrText = RGB(0x22, 0x22, 0);
+		colors = { 0xFFFFAA, 0x222200 };
 	}
 	else if (IsOpEdited(address))
 	{
-		// opcode is not original
-		pLVCD->clrTextBk = RGB(0xFF, 0xEE, 0xFF);
-		pLVCD->clrText = RGB(0xFF, 0x00, 0xFF);
+		colors = { 0xFFEEFF, 0xFF00FF };
 	}
-	else if (opCode.op == R4300i_ADDIU && opCode.rt == 29) // stack shift
+	else if (OpInfo.IsStackAlloc())
 	{
-		if ((short)opCode.immediate < 0) // stack alloc
-		{
-			// sky blue bg, dark blue fg
-			pLVCD->clrTextBk = RGB(0xCC, 0xDD, 0xFF);
-			pLVCD->clrText = RGB(0x00, 0x11, 0x44);
-		}
-		else // stack free
-		{
-			// salmon bg, dark red fg
-			pLVCD->clrTextBk = RGB(0xFF, 0xDD, 0xDD);
-			pLVCD->clrText = RGB(0x44, 0x00, 0x00);
-		}
+		colors = { 0xCCDDFF, 0x001144 };
 	}
-	else if (opCode.Hex == 0x00000000) // nop
+	else if (OpInfo.IsStackFree())
 	{
-		// gray fg
-		pLVCD->clrTextBk = RGB(0xFF, 0xFF, 0xFF);
-		pLVCD->clrText = RGB(0x88, 0x88, 0x88);
+		colors = { 0xFFDDDD, 0x440000 };
 	}
-	else if (OpIsJump(opCode))
+	else if (OpInfo.IsNOP())
 	{
-		// jumps
-		pLVCD->clrText = RGB(0x00, 0x66, 0x00);
-		pLVCD->clrTextBk = RGB(0xEE, 0xFF, 0xEE);
+		colors = { 0xFFFFFF, 0x888888 };
 	}
-	else if (OpIsBranch(opCode))
+	else if (OpInfo.IsJump())
 	{
-		// branches
-		pLVCD->clrTextBk = RGB(0xFF, 0xFF, 0xFF);
-		pLVCD->clrText = RGB(0x33, 0x77, 0x00);
+		colors = { 0xEEFFEE, 0x006600 };
+	}
+	else if (OpInfo.IsBranch())
+	{
+		colors = { 0xFFFFFF, 0x337700 };
 	}
 	else
 	{
-		pLVCD->clrTextBk = RGB(0xFF, 0xFF, 0xFF);
-		pLVCD->clrText = RGB(0x00, 0x00, 0x00);
+		colors = { 0xFFFFFF, 0x0000000 };
 	}
+
+	pLVCD->clrTextBk = _byteswap_ulong(colors.bg) >> 8;
+	pLVCD->clrText = _byteswap_ulong(colors.fg) >> 8;
 
 	if (!m_Breakpoints->isDebugging())
 	{
@@ -633,16 +549,16 @@ LRESULT CDebugCommandsView::OnCustomDrawList(NMHDR* pNMHDR)
 		pcChangedReg = pcOpcode.rt;
 	}
 
-	if (opCode.op == R4300i_SPECIAL)
+	if (OpCode.op == R4300i_SPECIAL)
 	{
-		curUsedRegA = opCode.rs;
-		curUsedRegB = opCode.rt;
-		curChangedReg = opCode.rd;
+		curUsedRegA = OpCode.rs;
+		curUsedRegB = OpCode.rt;
+		curChangedReg = OpCode.rd;
 	}
 	else
 	{
-		curUsedRegA = opCode.rs;
-		curChangedReg = opCode.rt;
+		curUsedRegA = OpCode.rs;
+		curChangedReg = OpCode.rt;
 	}
 
 	if (address < pc)
@@ -924,6 +840,12 @@ LRESULT CDebugCommandsView::OnClicked(WORD /*wNotifyCode*/, WORD wID, HWND /*hWn
 	case ID_POPUPMENU_ADDSYMBOL:
 		m_AddSymbolDlg.DoModal(m_Debugger, m_SelectedAddress, CSymbols::TYPE_CODE);
 		break;
+	case ID_POPUPMENU_FOLLOWJUMP:
+		{
+			uint32_t targetAddr = (m_SelectedAddress & 0xF0000000) | (m_SelectedOpCode.target * 4);
+			ShowAddress(targetAddr, FALSE);
+			break;
+		}
 	}
 	return FALSE;
 }
@@ -1038,12 +960,17 @@ LRESULT	CDebugCommandsView::OnCommandListDblClicked(NMHDR* pNMHDR)
 	m_AddressEdit.SetFocus();
 	RefreshBreakpointList();
 
-	return CDRF_DODEFAULT;
+	return 0;
 }
 
 LRESULT	CDebugCommandsView::OnCommandListRightClicked(NMHDR* pNMHDR)
 {
 	EndOpEdit();
+
+	if (g_MMU == NULL)
+	{
+		return 0;
+	}
 
 	NMITEMACTIVATE* pIA = reinterpret_cast<NMITEMACTIVATE*>(pNMHDR);
 	int nItem = pIA->iItem;
@@ -1053,6 +980,13 @@ LRESULT	CDebugCommandsView::OnCommandListRightClicked(NMHDR* pNMHDR)
 
 	HMENU hMenu = LoadMenu(GetModuleHandle(NULL), MAKEINTRESOURCE(IDR_OP_POPUP));
 	HMENU hPopupMenu = GetSubMenu(hMenu, 0);
+	
+	g_MMU->LW_VAddr(m_SelectedAddress, m_SelectedOpCode.Hex);
+
+	if (!m_SelectedOpInfo.IsStaticJump())
+	{
+		EnableMenuItem(hPopupMenu, ID_POPUPMENU_FOLLOWJUMP, MF_DISABLED | MF_GRAYED);
+	}
 
 	POINT mouse;
 	GetCursorPos(&mouse);
@@ -1061,7 +995,7 @@ LRESULT	CDebugCommandsView::OnCommandListRightClicked(NMHDR* pNMHDR)
 
 	DestroyMenu(hMenu);
 	
-	return CDRF_DODEFAULT;
+	return 0;
 }
 
 

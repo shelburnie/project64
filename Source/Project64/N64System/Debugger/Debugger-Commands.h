@@ -11,6 +11,7 @@
 
 #pragma once
 
+#include "OpInfo.h"
 #include "Breakpoints.h"
 #include "Debugger-AddBreakpoint.h"
 #include "Debugger-RegisterTabs.h"
@@ -134,6 +135,8 @@ private:
 	bool m_bEditing;
 	CEditOp m_OpEdit;
 	uint32_t m_SelectedAddress;
+	COpInfo  m_SelectedOpInfo;
+	OPCODE&   m_SelectedOpCode = m_SelectedOpInfo.m_OpCode;
 
 	typedef struct {
 		uint32_t address;
