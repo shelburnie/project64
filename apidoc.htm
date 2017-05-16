@@ -3,9 +3,10 @@
 <head>
 <meta charset="utf-8">
 <title>Project64d JS API</title>
+<link href='https://fonts.googleapis.com/css?family=Open+Sans:400,400italic,700,700italic' rel='stylesheet' type='text/css'>
 <style>
 body {
-	font-family: segoe ui, tahoma, sans;
+	font-family: "Open Sans", segoe ui, tahoma, sans;
 	font-size: 14px;
 	background-color: #EEE;
 }
@@ -23,7 +24,7 @@ div.panel {
 	padding: 10px;
 	border-top: 4px solid #FFAAAA;
 	margin-bottom: 10px;
-	box-shadow: -5px 5px 5px #BBB;
+	box-shadow: -5px 5px 5px #DDD;
 }
 div.classname {
 	font-weight: bold;
@@ -42,17 +43,27 @@ pre.example {
 	background-color: #EFE;
 	border: 1px solid #BCB;
 	padding: 5px;
-	font-family: consolas, courier new, courier, monospace;
+	font-family: consolas, courier new, monospace;
 	white-space: pre;
 	margin: 10px;
 	font-size: 12px;
 	color: #020;
 }
+pre.example::before {
+	content: "Example";
+	float: right;
+	opacity: 0.5;
+	font-size: 11px;
+	font-family: "Open Sans", segoe ui, tahoma, sans;
+}
 span.snip {
 	background-color: #EFE;
-	color: #020;
-	font-family: consolas, courier new, courier, monospace;
+	border: 1px solid #BCB;
+	padding: 0px 2px;
 	font-size: 13px;
+	color: #020;
+	font-family: consolas, courier new, monospace;
+	border-radius: 3px;
 }
 span.tag {
 	float: right;
@@ -85,10 +96,15 @@ span.tag2 {
 		<a href="#mem">mem</a><br>
 		<a href="#rom">rom</a><br>
 		<a href="#events">events</a><br>
+		<a href="#debug">debug</a><br>
+		<a href="#console">console</a><br>
+		<a href="#alert">alert</a><br>
+		<a href="#screen">screen</a><br>
 		<a href="#gpr">gpr</a><br>
 		<a href="#fpr">fpr</a><br>
 		<a href="#Server">Server</a><br>
 		<a href="#Socket">Socket</a><br>
+		<a href="#Number">Number</a><br>
 	</div>
 </div>
 <div class="inline-content" style="max-width: 700px;">
@@ -97,8 +113,8 @@ span.tag2 {
 	<div class="property">
 		<div class="propertyname">mem.u8|u16|u32|s8|s16|s32|float|double</div>
 		<div class="propertydesc">
-			Arrays for reading and modifying values in RDRAM.
-			These do not dereference like typical arrays; virtual addresses are always used for the index regardless of type size.
+			Arrays for reading and modifying values in virtual memory.
+			Virtual addresses are always used for indeces regardless of type size.
 			<pre class="example">
 var addr_power = 0x8033B21E
 
@@ -112,19 +128,19 @@ if(mem.u8[addr_power] &lt; 1)
 	<div class="property">
 		<div class="propertyname">mem.getblock(baseAddr, size)</div>
 		<div class="propertydesc">
-			Returns buffer object
+			Returns a Buffer object from a block of data of <span class="snip">size</span> bytes at <span class="snip">baseAddr</span> in virtual memory.
 		</div>
 	</div>
 	<div class="property">
 		<div class="propertyname">mem.getstring(baseAddr)</div>
 		<div class="propertydesc">
-			Returns string
+			Returns a string from a zero-terminated ASCII string at <span class="snip">baseAddr</span> in virtual memory.
 		</div>
 	</div>
 	<div class="property">
 		<div class="propertyname">mem.bindvar(obj, baseAddr, name, type)</div>
 		<div class="propertydesc">
-			Adds property <span class="snip">name</span> to <span class="snip">obj</span> and "binds" it to the RDRAM address specified by <span class="snip">baseAddr</span>.
+			Adds property <span class="snip">name</span> to <span class="snip">obj</span> and "binds" it to the virtual address specified by <span class="snip">baseAddr</span>.
 			Valid types are: <span class="snip">u8</span>, <span class="snip">u16</span>, <span class="snip">u32</span>, <span class="snip">s8</span>, <span class="snip">s16</span>, <span class="snip">s32</span>, <span class="snip">float</span>, and <span class="snip">double</span>.
 			<pre class="example">
 mem.bindvar(this, 0x8033B21E, 'power', u8)
@@ -139,7 +155,7 @@ if(power &lt; 1)
 	<div class="property">
 		<div class="propertyname">mem.bindvars(obj, vars)</div>
 		<div class="propertydesc">
-			Adds multiple RDRAM-bound properties to <span class="snip">obj</span>.
+			Adds multiple virtual memory-bound properties to <span class="snip">obj</span>.
 			Returns <span class="snip">obj</span>.
 			<pre class="example">
 var mario = mem.bindvars({},
@@ -156,7 +172,7 @@ mario.y = 500.00
 	<div class="property">
 		<div class="propertyname">mem.bindstruct(obj, baseAddr, props)</div>
 		<div class="propertydesc">
-			Adds multiple RDRAM-bound properties to <span class="snip">obj</span>.
+			Adds multiple virtual memory-bound properties to <span class="snip">obj</span>.
 			Addresses are determined by type sizes.
 			Returns <span class="snip">obj</span>.
 			<pre class="example">
@@ -172,25 +188,32 @@ var marioPos = mem.bindstruct(this, 0x8033B1AC,
 	<div class="property">
 		<div class="propertyname">mem.typedef(props)</div>
 		<div class="propertydesc">
-			Returns a "struct" class that may be constructed with the virtual address of a real struct in RDRAM.
+			Returns a "struct" class that may be constructed using the address of a real struct in virtual memory.
 			<pre class="example">
-const Point = mem.typedef(
+const Player = mem.typedef(
 {
+    health: u32,
     x: float,
     y: float,
     z: float
 })
 
-Point.prototype.move = function(x, y, z)
+Player.prototype.move = function(x, y, z)
 {
     this.x = x
     this.y = y
     this.z = z
 }
 
-var playerPos = new Point(0x8033B1AC)
+Player.prototype.heal = function()
+{
+    this.health = 100;
+}
 
-playerPos.move(100, 200, 300)
+var player = new Player(0x8033B1AC)
+
+player.move(100, 200, 300)
+player.heal()
 </pre>
 		</div>
 	</div>
@@ -202,7 +225,7 @@ playerPos.move(100, 200, 300)
 	<div class="property">
 		<div class="propertyname">rom.u8|u16|u32|s8|s16|s32|float|double</div>
 		<div class="propertydesc">
-			Arrays for reading values in ROM. Indexing works in a similar manner to <b>mem</b>'s.
+			Arrays for reading values in cartridge ROM. Indexing works in a similar manner to <b>mem</b>'s.
 			<pre class="example">
 var crc1 = rom.u32[0x00000010]
 var crc2 = rom.u32[0x00000014]
@@ -212,14 +235,16 @@ var crc2 = rom.u32[0x00000014]
 	<div class="property">
 		<div class="propertyname">rom.getblock(baseAddr, size)</div>
 		<div class="propertydesc">
-			Returns buffer object
+			Returns a Buffer object from a block of data of size bytes at <span class="snip">baseAddr</span> in cartridge ROM.
 		</div>
 	</div>
 	<div class="property">
 		<div class="propertyname">rom.getstring(baseAddr)</div>
 		<div class="propertydesc">
-			Returns string
-		</div>
+			Returns a string from a zero-terminated ASCII string at <span class="snip">baseAddr</span> in cartridge ROM.
+			<pre class="example">
+var romName = rom.getstring(0x00000020)
+console.log('Internal ROM name: ' + romName)</div>
 	</div>
 </div>
 
@@ -238,12 +263,12 @@ var crc2 = rom.u32[0x00000014]
 		<span class="tag">interpreter mode</span>
 		<div class="propertyname">events.onexec(address, callback)</div>
 		<div class="propertydesc">
-			Adds a CPU execution callback for a virtual RAM address.
+			Adds a CPU execution callback for a virtual address and returns a callback ID.
 			<span class="snip">callback</span> will be invoked at the beginning of a CPU step if the program counter is at <span class="snip">address</span>.
 			<pre class="example">
-events.onexec(0x802CB1C0, function()
+var id = events.onexec(0x802CB1C0, function()
 {
-    alert('CPU is calling 802CB1C0')
+    console.log('CPU is calling 802CB1C0')
 })
 </pre>
 		</div>
@@ -253,12 +278,12 @@ events.onexec(0x802CB1C0, function()
 		<span class="tag">interpreter mode</span>
 		<div class="propertyname">events.onread(address, callback)</div>
 		<div class="propertydesc">
-			Adds a CPU read callback for a virtual RAM address.
+			Adds a CPU read callback for a virtual address and returns a callback ID.
 			<span class="snip">callback</span> will be invoked at the beginning of a CPU step if the current instruction is going to read from <span class="snip">address</span>.
 			<pre class="example">
-events.onread(0x8033B1B0, function()
+var id = events.onread(0x8033B1B0, function()
 {
-    alert('CPU is reading 8033B1B0')
+    console.log('CPU is reading 8033B1B0')
 })
 </pre>
 		</div>
@@ -268,12 +293,40 @@ events.onread(0x8033B1B0, function()
 		<span class="tag">interpreter mode</span>
 		<div class="propertyname">events.onwrite(address, callback)</div>
 		<div class="propertydesc">
-			Adds a CPU write callback for a virtual RAM address.
+			Adds a CPU write callback for a virtual address and returns a callback ID.
 			<span class="snip">callback</span> will be invoked at the beginning of a CPU step if the current instruction is going to write to <span class="snip">address</span>.
 			<pre class="example">
-events.onwrite(0x8033B1B0, function()
+var id = events.onwrite(0x8033B1B0, function()
 {
-    alert('CPU is modifying 8033B1B0')
+    console.log('CPU is modifying 8033B1B0')
+})
+</pre>
+		</div>
+	</div>
+	<div class="property">
+		<span class="tag2">emulation thread</span>
+		<div class="propertyname">events.ondraw(callback)</div>
+		<div class="propertydesc">
+			Adds a callback which will be invoked immediately after Project64 requests a screen update from the graphics plugin.
+			Returns a callback ID.
+			<pre class="example">
+var id = events.ondraw(function()
+{
+    console.log('Frame drawn')
+})
+</pre>
+		</div>
+	</div>
+	<div class="property">
+		<div class="propertyname">events.remove(callbackId)</div>
+		<div class="propertydesc">
+			Removes a registered callback by its ID.
+			<pre class="example">
+var callbackId = events.onexec(0x80000180, function()
+{
+    // Only invoked once
+    console.log('Interrupt fired')
+    events.remove(callbackId)
 })
 </pre>
 		</div>
@@ -288,6 +341,84 @@ events.onwrite(0x8033B1B0, function()
 	-->
 </div>
 
+<div class="panel" id="debug">
+	<div class="classname">debug</div>
+	<div class="property">
+		<div class="propertyname">debug.breakhere()</div>
+		<div class="propertydesc">
+			Pauses emulation and opens the debugger window. Useful for creating conditional breakpoints.
+			<pre class="example">
+events.onexec(0x802CB1C0, function()
+{
+    if(gpr.a0 == 0)
+    {
+        console.log('0 passed to 0x802CB1C0, breaking')
+        debug.breakhere()
+    }
+})
+</pre>
+		</div>
+	</div>
+</div>
+
+<div class="panel" id="console">
+	<div class="classname">console</div>
+	<div class="property">
+		<div class="propertyname">console.print(text)</div>
+		<div class="propertydesc">
+			Prints text to the script console.
+			<pre class="example">console.print('Hello world\n')</pre>
+		</div>
+	</div>
+	<div class="property">
+		<div class="propertyname">console.log(text[, text2, ...])</div>
+		<div class="propertydesc">
+			Concatenates all provided text arguments with spaces and prints the result to the script console with a trailing newline.
+			<pre class="example">console.log('Hello', 'world')</pre>
+		</div>
+	</div>
+	<div class="property">
+		<div class="propertyname">console.clear()</div>
+		<div class="propertydesc">
+			Clears all previously printed text from the script console.
+		</div>
+	</div>
+</div>
+
+<div class="panel" id="alert">
+<div class="classname">alert</div>
+	<div class="property">
+		<div class="propertyname">alert(message[, caption])</div>
+		<div class="propertydesc">
+			Shows a message box with an optional caption.
+			The calling thread will be blocked until the message box is dismissed.
+			<pre class="example">
+alert('Hello world') // Blocks the script's thread
+
+events.onexec(0x80000180, function()
+{
+    alert('Interrupt fired!') // Blocks the emulation thread
+})</pre>
+		</div>
+	</div>
+</div>
+
+<div class="panel" id="screen">
+	<div class="classname">screen</div>
+	<div class="property">
+		<div class="propertyname">screen.print(x, y, text)</div>
+		<div class="propertydesc">
+			Prints <span class="snip">text</span> to the screen at the provided <span class="snip">x</span> and <span class="snip">y</span> coordinates.
+			Should be called from an <span class="snip">events.ondraw</span> callback.
+			<b>(Unstable!)</b>
+			<pre class="example">
+events.ondraw(function()
+{
+    screen.print(20, 20, "power: ' + mem.u8[0x8033B21E])
+})</pre>
+		</div>
+	</div>
+</div>
 
 <div class="panel" id="gpr">
 	<div class="classname">gpr</div>
@@ -343,7 +474,7 @@ events.onexec(0x802CB1C0, function()
 		<div class="propertyname">new Server(settings)</div>
 		<div class="propertydesc">
 			Creates a new server socket.
-			If <span class="snip">port</span> is provided in <span class="snip">settings</span>, the server starts listening immediately.
+			If <span class="snip">port</span> is provided in <span class="snip">settings</span>, the server will start listening immediately.
 			<pre class="example">var server = new Server({port: 80})</pre>
 		</div>
 	</div>
@@ -365,7 +496,7 @@ server.on('connection', function(socket)
     {
         socket.write('hello')
     })
-}</pre>
+})</pre>
 		</div>
 	</div>
 	<!--
@@ -373,18 +504,26 @@ server.on('connection', function(socket)
  server.on(evt, callback)
 	'connection' -> callback(socket)-->
 </div>
+
 <div class="panel" id="Socket">
 <div class="classname">Socket</div>
 	<div class="property">
 		<div class="propertyname">new Socket([fd])</div>
 		<div class="propertydesc">
-			<pre class="example"></pre>
+			Creates a new socket object.
+		</div>
+	</div>
+	<div class="property">
+		<div class="propertyname">socket.connect(settings[, callback])</div>
+		<div class="propertydesc">
+			Connects the socket to the  <span class="snip">host</span> and <span class="snip">port</span> specified by the <span class="snip">settings</span> object.
+			The default values for the host and port are <span class="snip">"127.0.0.1"</span> and <span class="snip">80</span> respectively.
 		</div>
 	</div>
 	<div class="property">
 		<div class="propertyname">socket.write(data[, callback])</div>
 		<div class="propertydesc">
-			<pre class="example"></pre>
+			Writes <span class="snip">data</span> to the socket.
 		</div>
 	</div>
 	<div class="property">
@@ -394,7 +533,27 @@ server.on('connection', function(socket)
 			<!--<pre class="example"></pre>-->
 		</div>
 	</div>
+	<div class="property">
+		<div class="propertyname">socket.on('close', callback)</div>
+		<div class="propertydesc">
+
+		</div>
+	</div>
 </div>
+
+<div class="panel" id="number">
+<div class="classname">Number</div>
+	<div class="property">
+		<div class="propertyname">number.hex([nChars])</div>
+		<div class="propertydesc">
+			Returns a hexadecimal string representation of the number object. The resulting string is prepended with zeroes until its character length meets <span class="snip">nChars</span> or 8 by default.
+			<pre class="example">
+var sm64EntryPC = rom.u32[0x00000008]
+console.log("Entry: " + sm64EntryPC.hex()) // "Entry: 80246000"</pre>
+		</div>
+	</div>
+</div>
+
 <!--
 <div class="panel">
 alert(message)<br>
