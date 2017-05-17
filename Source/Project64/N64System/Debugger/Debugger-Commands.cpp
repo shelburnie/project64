@@ -726,7 +726,7 @@ void CDebugCommandsView::RefreshBreakpointList()
 	{
 		CBreakpoints::BREAKPOINT breakpoint = m_Breakpoints->m_RBP[i];
 		bool bTemp = breakpoint.bTemporary;
-		sprintf(rowStr, "%sR %08X", bTemp ? "T " : "", breakpoint.address);
+		sprintf(rowStr, "R %s%08X", bTemp ? "T " : "", breakpoint.address);
 		int index = m_BreakpointList.AddString(rowStr);
 		m_BreakpointList.SetItemData(index, breakpoint.address);
 	}
@@ -734,7 +734,7 @@ void CDebugCommandsView::RefreshBreakpointList()
 	{
 		CBreakpoints::BREAKPOINT breakpoint = m_Breakpoints->m_WBP[i];
 		bool bTemp = breakpoint.bTemporary;
-		sprintf(rowStr, "%sW %08X", bTemp ? "T " : "", breakpoint.address);
+		sprintf(rowStr, "W %s%08X", bTemp ? "T " : "", breakpoint.address);
 		int index = m_BreakpointList.AddString(rowStr);
 		m_BreakpointList.SetItemData(index, breakpoint.address);
 	}
@@ -742,7 +742,7 @@ void CDebugCommandsView::RefreshBreakpointList()
 	{
 		CBreakpoints::BREAKPOINT breakpoint = m_Breakpoints->m_EBP[i];
 		bool bTemp = breakpoint.bTemporary;
-		sprintf(rowStr, "%sE %08X", bTemp ? "T " : "", breakpoint.address);
+		sprintf(rowStr, "E %s%08X", bTemp ? "T " : "", breakpoint.address);
 		int index = m_BreakpointList.AddString(rowStr);
 		m_BreakpointList.SetItemData(index, breakpoint.address);
 	}
@@ -871,6 +871,14 @@ LRESULT CDebugCommandsView::OnClicked(WORD /*wNotifyCode*/, WORD wID, HWND /*hWn
 		break;
 	case ID_POPUPMENU_VIEWMEMORY:
 		m_Debugger->Debug_ShowMemoryLocation(m_FollowAddress, true);
+		break;
+	case ID_POPUPMENU_TOGGLEBP:
+		m_Breakpoints->EBPToggle(m_SelectedAddress);
+		ShowAddress(m_StartAddress, TRUE);
+		break;
+	case ID_POPUPMENU_CLEARBPS:
+		m_Breakpoints->EBPClear();
+		ShowAddress(m_StartAddress, TRUE);
 		break;
 	}
 	return FALSE;
@@ -1030,7 +1038,27 @@ LRESULT	CDebugCommandsView::OnCommandListRightClicked(NMHDR* pNMHDR)
 	{
 		EnableMenuItem(hPopupMenu, ID_POPUPMENU_VIEWMEMORY, MF_DISABLED | MF_GRAYED);
 	}
+
+	if (!IsOpEdited(m_SelectedAddress))
+	{
+		EnableMenuItem(hPopupMenu, ID_POPUPMENU_RESTORE, MF_DISABLED | MF_GRAYED);
+	}
 	
+	if (m_EditedOps.size() == 0)
+	{
+		EnableMenuItem(hPopupMenu, ID_POPUPMENU_RESTOREALL, MF_DISABLED | MF_GRAYED);
+	}
+
+	if (m_SelectedOpInfo.IsNOP())
+	{
+		EnableMenuItem(hPopupMenu, ID_POPUPMENU_INSERTNOP, MF_DISABLED | MF_GRAYED);
+	}
+
+	if (m_Breakpoints->m_nEBP == 0)
+	{
+		EnableMenuItem(hPopupMenu, ID_POPUPMENU_CLEARBPS, MF_DISABLED | MF_GRAYED);
+	}
+
 	POINT mouse;
 	GetCursorPos(&mouse);
 

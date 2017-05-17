@@ -1447,6 +1447,8 @@ BEGIN
     POPUP "PopupMenu"
     BEGIN
         MENUITEM "Run to line",                 ID_POPUPMENU_RUNTO
+        MENUITEM "Toggle breakpoint",           ID_POPUPMENU_TOGGLEBP
+        MENUITEM "Clear breakpoints",           ID_POPUPMENU_CLEARBPS
         MENUITEM SEPARATOR
         MENUITEM "Follow",                      ID_POPUPMENU_FOLLOWJUMP
         MENUITEM "View memory...",              ID_POPUPMENU_VIEWMEMORY
