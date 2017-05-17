@@ -42,10 +42,15 @@ LRESULT	CAddSymbolDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*l
 		m_AddressEdit.SetValue(m_InitAddress, false, true);
 		m_TypeComboBox.SetFocus();
 	}
+
 	if(m_bHaveType)
 	{
 		m_TypeComboBox.SetCurSel(m_InitType);
 		m_NameEdit.SetFocus();
+	}
+	else
+	{
+		m_TypeComboBox.SetCurSel(CSymbols::TYPE_DATA);
 	}
 	
 	return FALSE;
@@ -59,12 +64,26 @@ LRESULT CAddSymbolDlg::OnClicked(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL&
 		EndDialog(0);
 		break;
 	case IDOK:
+		int addrLen = m_AddressEdit.GetWindowTextLengthA();
+
+		if (!addrLen)
+		{
+			MessageBox("Address required", "Error", MB_OK);
+			return 0;
+		}
+
 		uint32_t address = m_AddressEdit.GetValue();
 		int type = m_TypeComboBox.GetCurSel();
 
 		int nameLen = m_NameEdit.GetWindowTextLengthA();
 		int descLen = m_DescriptionEdit.GetWindowTextLengthA();
 		
+		if (!nameLen && !descLen)
+		{
+			MessageBox("Name and/or description required", "Error", MB_OK);
+			return 0;
+		}
+
 		char name[128];
 		char description[256];
 
