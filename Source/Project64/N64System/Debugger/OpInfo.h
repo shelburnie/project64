@@ -126,6 +126,11 @@ public:
 		return false;
 	}
 
+	bool IsLoadStore()
+	{
+		return (m_OpCode.op >= R4300i_LDL && m_OpCode.op <= R4300i_SD && m_OpCode.op != R4300i_CACHE);
+	}
+
 	bool IsStackShift()
 	{
 		return (m_OpCode.op == R4300i_ADDIU || m_OpCode.op == R4300i_ADDI) && m_OpCode.rt == 29;

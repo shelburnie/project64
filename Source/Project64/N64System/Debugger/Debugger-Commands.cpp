@@ -869,6 +869,9 @@ LRESULT CDebugCommandsView::OnClicked(WORD /*wNotifyCode*/, WORD wID, HWND /*hWn
 		ShowAddress(m_FollowAddress, TRUE);
 		HistoryPushState();
 		break;
+	case ID_POPUPMENU_VIEWMEMORY:
+		m_Debugger->Debug_ShowMemoryLocation(m_FollowAddress, true);
+		break;
 	}
 	return FALSE;
 }
@@ -1017,6 +1020,15 @@ LRESULT	CDebugCommandsView::OnCommandListRightClicked(NMHDR* pNMHDR)
 	else
 	{
 		EnableMenuItem(hPopupMenu, ID_POPUPMENU_FOLLOWJUMP, MF_DISABLED | MF_GRAYED);
+	}
+
+	if (m_SelectedOpInfo.IsLoadStore())
+	{
+		m_FollowAddress = g_Reg->m_GPR[m_SelectedOpCode.base].UW[0] + (int16_t)m_SelectedOpCode.offset;
+	}
+	else
+	{
+		EnableMenuItem(hPopupMenu, ID_POPUPMENU_VIEWMEMORY, MF_DISABLED | MF_GRAYED);
 	}
 	
 	POINT mouse;

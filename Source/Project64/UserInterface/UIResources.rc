@@ -1449,6 +1449,7 @@ BEGIN
         MENUITEM "Run to line",                 ID_POPUPMENU_RUNTO
         MENUITEM SEPARATOR
         MENUITEM "Follow",                      ID_POPUPMENU_FOLLOWJUMP
+        MENUITEM "View memory...",              ID_POPUPMENU_VIEWMEMORY
         MENUITEM SEPARATOR
         MENUITEM "Add symbol...",               ID_POPUPMENU_ADDSYMBOL
         MENUITEM SEPARATOR
