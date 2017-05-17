@@ -443,13 +443,23 @@ LRESULT CDebugCommandsView::OnCustomDrawList(NMHDR* pNMHDR)
 
 	if (nSubItem == CCommandList::COL_ADDRESS) // addr
 	{
-		if (m_Breakpoints->EBPExists(address))
+		CBreakpoints::BPSTATE bpState = m_Breakpoints->EBPExists(address);
+
+		if (bpState == CBreakpoints::BP_SET)
 		{
 			// breakpoint
 			pLVCD->clrTextBk = RGB(0x44, 0x00, 0x00);
 			pLVCD->clrText = (address == pc) ?
 				RGB(0xFF, 0xFF, 0x00) : // breakpoint & current pc
 				RGB(0xFF, 0xCC, 0xCC);
+		}
+		else if (bpState == CBreakpoints::BP_SET_TEMP)
+		{
+			// breakpoint
+			pLVCD->clrTextBk = RGB(0x66, 0x44, 0x00);
+			pLVCD->clrText = (address == pc) ?
+				RGB(0xFF, 0xFF, 0x00) : // breakpoint & current pc
+				RGB(0xFF, 0xEE, 0xCC);
 		}
 		else if (address == pc && m_Breakpoints->isDebugging())
 		{
@@ -709,21 +719,27 @@ void CDebugCommandsView::RefreshBreakpointList()
 	char rowStr[16];
 	for (int i = 0; i < m_Breakpoints->m_nRBP; i++)
 	{
-		sprintf(rowStr, "R %08X", m_Breakpoints->m_RBP[i]);
+		CBreakpoints::BREAKPOINT breakpoint = m_Breakpoints->m_RBP[i];
+		bool bTemp = breakpoint.bTemporary;
+		sprintf(rowStr, "%sR %08X", bTemp ? "T " : "", breakpoint.address);
 		int index = m_BreakpointList.AddString(rowStr);
-		m_BreakpointList.SetItemData(index, m_Breakpoints->m_RBP[i]);
+		m_BreakpointList.SetItemData(index, breakpoint.address);
 	}
 	for (int i = 0; i < m_Breakpoints->m_nWBP; i++)
 	{
-		sprintf(rowStr, "W %08X", m_Breakpoints->m_WBP[i]);
+		CBreakpoints::BREAKPOINT breakpoint = m_Breakpoints->m_WBP[i];
+		bool bTemp = breakpoint.bTemporary;
+		sprintf(rowStr, "%sW %08X", bTemp ? "T " : "", breakpoint.address);
 		int index = m_BreakpointList.AddString(rowStr);
-		m_BreakpointList.SetItemData(index, m_Breakpoints->m_WBP[i]);
+		m_BreakpointList.SetItemData(index, breakpoint.address);
 	}
 	for (int i = 0; i < m_Breakpoints->m_nEBP; i++)
 	{
-		sprintf(rowStr, "E %08X", m_Breakpoints->m_EBP[i]);
+		CBreakpoints::BREAKPOINT breakpoint = m_Breakpoints->m_EBP[i];
+		bool bTemp = breakpoint.bTemporary;
+		sprintf(rowStr, "%sE %08X", bTemp ? "T " : "", breakpoint.address);
 		int index = m_BreakpointList.AddString(rowStr);
-		m_BreakpointList.SetItemData(index, m_Breakpoints->m_EBP[i]);
+		m_BreakpointList.SetItemData(index, breakpoint.address);
 	}
 }
 
@@ -786,6 +802,9 @@ LRESULT CDebugCommandsView::OnClicked(WORD /*wNotifyCode*/, WORD wID, HWND /*hWn
 	case IDC_SYMBOLS_BTN:
 		m_Debugger->Debug_ShowSymbolsWindow();
 		break;
+	case ID_POPUPMENU_RUNTO:
+		// Add temp bp and resume
+		m_Breakpoints->EBPAdd(m_SelectedAddress, true);
 	case IDC_GO_BTN:
 		m_Debugger->Debug_RefreshStackWindow();
 		m_Breakpoints->StopDebugging();

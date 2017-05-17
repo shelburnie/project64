@@ -68,33 +68,33 @@ void CBreakpoints::Skip()
 	m_Skipping = TRUE;
 }
 
-bool CBreakpoints::RBPAdd(uint32_t address)
+bool CBreakpoints::RBPAdd(uint32_t address, bool bTemporary)
 {
 	if (!RBPExists(address))
 	{
-		m_RBP.push_back(address);
+		m_RBP.push_back({ address, bTemporary });
 		m_nRBP = m_RBP.size();
 		return true;
 	}
 	return false;
 }
 
-bool CBreakpoints::WBPAdd(uint32_t address)
+bool CBreakpoints::WBPAdd(uint32_t address, bool bTemporary)
 {
 	if (!WBPExists(address))
 	{
-		m_WBP.push_back(address);
+		m_WBP.push_back({ address, bTemporary });
 		m_nWBP = m_WBP.size();
 		return true;
 	}
 	return false;
 }
 
-bool CBreakpoints::EBPAdd(uint32_t address)
+bool CBreakpoints::EBPAdd(uint32_t address, bool bTemporary)
 {
 	if (!EBPExists(address))
 	{
-		m_EBP.push_back(address);
+		m_EBP.push_back({ address, bTemporary });
 		m_nEBP = m_EBP.size();
 		return true;
 	}
@@ -105,7 +105,7 @@ void CBreakpoints::RBPRemove(uint32_t address)
 {
 	for (int i = 0; i < m_nRBP; i++)
 	{
-		if (m_RBP[i] == address)
+		if (m_RBP[i].address == address)
 		{
 			m_RBP.erase(m_RBP.begin() + i);
 			m_nRBP = m_RBP.size();
@@ -118,7 +118,7 @@ void CBreakpoints::WBPRemove(uint32_t address)
 {
 	for (int i = 0; i < m_nWBP; i++)
 	{
-		if (m_WBP[i] == address)
+		if (m_WBP[i].address == address)
 		{
 			m_WBP.erase(m_WBP.begin() + i);
 			m_nWBP = m_WBP.size();
@@ -131,7 +131,7 @@ void CBreakpoints::EBPRemove(uint32_t address)
 {
 	for (int i = 0; i < m_nEBP; i++)
 	{
-		if (m_EBP[i] == address)
+		if (m_EBP[i].address == address)
 		{
 			m_EBP.erase(m_EBP.begin() + i);
 			m_nEBP = m_EBP.size();
@@ -140,25 +140,25 @@ void CBreakpoints::EBPRemove(uint32_t address)
 	}
 }
 
-void CBreakpoints::RBPToggle(uint32_t address)
+void CBreakpoints::RBPToggle(uint32_t address, bool bTemporary)
 {
-	if (RBPAdd(address) == false)
+	if (RBPAdd(address, bTemporary) == false)
 	{
 		RBPRemove(address);
 	}
 }
 
-void CBreakpoints::WBPToggle(uint32_t address)
+void CBreakpoints::WBPToggle(uint32_t address, bool bTemporary)
 {
-	if (WBPAdd(address) == false)
+	if (WBPAdd(address, bTemporary) == false)
 	{
 		WBPRemove(address);
 	}
 }
 
-void CBreakpoints::EBPToggle(uint32_t address)
+void CBreakpoints::EBPToggle(uint32_t address, bool bTemporary)
 {
-	if (EBPAdd(address) == false)
+	if (EBPAdd(address, bTemporary) == false)
 	{
 		EBPRemove(address);
 	}

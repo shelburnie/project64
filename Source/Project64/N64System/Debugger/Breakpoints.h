@@ -16,15 +16,26 @@
 class CBreakpoints {
 private:
 	
-
 public:
+	typedef struct {
+		uint32_t address;
+		bool bTemporary;
+	} BREAKPOINT;
+
+	enum BPSTATE {
+		BP_NOT_SET = FALSE,
+		BP_SET,
+		BP_SET_TEMP
+	};
+
 	CBreakpoints();
 
 	BOOL m_Debugging;
 	BOOL m_Skipping;
-	std::vector<uint32_t> m_RBP;
-	std::vector<uint32_t> m_WBP;
-	std::vector<uint32_t> m_EBP;
+
+	std::vector<BREAKPOINT> m_RBP;
+	std::vector<BREAKPOINT> m_WBP;
+	std::vector<BREAKPOINT> m_EBP;
 
 	int m_nRBP;
 	int m_nWBP;
@@ -44,59 +55,89 @@ public:
 		return ret;
 	}
 
-	bool RBPAdd(uint32_t address);
+	bool RBPAdd(uint32_t address, bool bTemporary = false);
 	void RBPRemove(uint32_t address);
-	void RBPToggle(uint32_t address);
+	void RBPToggle(uint32_t address, bool bTemporary = false);
 	void RBPClear();
 
-	bool WBPAdd(uint32_t address);
+	bool WBPAdd(uint32_t address, bool bTemporary = false);
 	void WBPRemove(uint32_t address);
-	void WBPToggle(uint32_t address);
+	void WBPToggle(uint32_t address, bool bTemporary = false);
 	void WBPClear();
 
-	bool EBPAdd(uint32_t address);
+	bool EBPAdd(uint32_t address, bool bTemporary = false);
 	void EBPRemove(uint32_t address);
-	void EBPToggle(uint32_t address);
+	void EBPToggle(uint32_t address, bool bTemporary = false);
 	void EBPClear();
 	
 	void BPClear();
 
 	// inlines
 
-	inline BOOL RBPExists(uint32_t address)
+	inline BPSTATE RBPExists(uint32_t address, bool bRemoveTemp = false)
 	{
 		for (int i = 0; i < m_nRBP; i++)
 		{
-			if (m_RBP[i] == address)
+			if (m_RBP[i].address != address)
 			{
-				return TRUE;
+				continue;
 			}
+
+			if (m_RBP[i].bTemporary)
+			{
+				if (bRemoveTemp)
+				{
+					RBPRemove(address);
+				}
+				return BP_SET_TEMP;
+			}
+			return BP_SET;
 		}
-		return FALSE;
+		return BP_NOT_SET;
 	}
 
-	inline BOOL WBPExists(uint32_t address)
+	inline BPSTATE WBPExists(uint32_t address, bool bRemoveTemp = false)
 	{
 		for (int i = 0; i < m_nWBP; i++)
 		{
-			if (m_WBP[i] == address)
+			if (m_WBP[i].address != address)
 			{
-				return TRUE;
+				continue;
 			}
+
+			if (m_WBP[i].bTemporary)
+			{
+				if (bRemoveTemp)
+				{
+					WBPRemove(address);
+				}
+				return BP_SET_TEMP;
+			}
+			return BP_SET;
 		}
-		return FALSE;
+		return BP_NOT_SET;
 	}
 
-	inline BOOL EBPExists(uint32_t address)
+	inline BPSTATE EBPExists(uint32_t address, bool bRemoveTemp = false)
 	{
 		for (int i = 0; i < m_nEBP; i++)
 		{
-			if (m_EBP[i] == address)
+			if (m_EBP[i].address != address)
 			{
-				return TRUE;
+				continue;
 			}
+
+			if (m_EBP[i].bTemporary)
+			{
+				if (bRemoveTemp)
+				{
+					EBPRemove(address);
+				}
+				return BP_SET_TEMP;
+			}
+			return BP_SET;
 		}
-		return FALSE;
+		return BP_NOT_SET;
 	}
 
 };

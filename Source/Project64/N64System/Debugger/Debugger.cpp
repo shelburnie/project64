@@ -390,7 +390,7 @@ bool CDebuggerUI::CPUStepStarted()
 	
 	// PC breakpoints
 
-	if (m_Breakpoints->EBPExists(PROGRAM_COUNTER))
+	if (m_Breakpoints->EBPExists(PROGRAM_COUNTER, true))
 	{
 		goto breakpoint_hit;
 	}
@@ -434,7 +434,7 @@ bool CDebuggerUI::CPUStepStarted()
 
 				for (int i = 0; i < m_Breakpoints->m_nWBP; i++)
 				{
-					uint32_t wbpAddr = m_Breakpoints->m_WBP[i];
+					uint32_t wbpAddr = m_Breakpoints->m_WBP[i].address;
 					if (wbpAddr >= dmaRamAddr && wbpAddr < endAddr)
 					{
 						goto breakpoint_hit;
