@@ -15,8 +15,6 @@
 #include "ScriptInstance.h"
 #include "ScriptHook.h"
 
-/////////////////// CScriptSystem
-
 CScriptSystem::CScriptSystem(CDebuggerUI* debugger)
 {
 	WSADATA wsaData;
@@ -51,10 +49,11 @@ CScriptSystem::CScriptSystem(CDebuggerUI* debugger)
 
 CScriptSystem::~CScriptSystem()
 {
-	delete m_HookCPUExec;
-	delete m_HookCPURead;
-	delete m_HookCPUWrite;
-	delete m_HookFrameDrawn;
+	for (int i = 0; i < m_Hooks.size(); i++)
+	{
+		delete m_Hooks[i].cbList;
+	}
+
 	UnregisterHooks();
 	free(m_APIScript);
 }
@@ -128,27 +127,30 @@ CScriptInstance* CScriptSystem::GetInstance(char* path)
 
 bool CScriptSystem::HasCallbacksForInstance(CScriptInstance* scriptInstance)
 {
-	return
-		m_HookCPUExec->HasContext(scriptInstance) ||
-		m_HookCPURead->HasContext(scriptInstance) ||
-		m_HookCPUWrite->HasContext(scriptInstance) ||
-		m_HookFrameDrawn->HasContext(scriptInstance);
+	for (int i = 0; i < m_Hooks.size(); i++)
+	{
+		if (m_Hooks[i].cbList->HasContext(scriptInstance))
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 void CScriptSystem::ClearCallbacksForInstance(CScriptInstance* scriptInstance)
 {
-	m_HookCPUExec->RemoveByInstance(scriptInstance);
-	m_HookCPURead->RemoveByInstance(scriptInstance);
-	m_HookCPUWrite->RemoveByInstance(scriptInstance);
-	m_HookFrameDrawn->RemoveByInstance(scriptInstance);
+	for (int i = 0; i < m_Hooks.size(); i++)
+	{
+		m_Hooks[i].cbList->RemoveByInstance(scriptInstance);
+	}
 }
 
 void CScriptSystem::RemoveCallbackById(int callbackId)
 {
-	m_HookCPUExec->RemoveById(callbackId);
-	m_HookCPURead->RemoveById(callbackId);
-	m_HookCPUWrite->RemoveById(callbackId);
-	m_HookFrameDrawn->RemoveById(callbackId);
+	for (int i = 0; i < m_Hooks.size(); i++)
+	{
+		m_Hooks[i].cbList->RemoveById(callbackId);
+	}
 }
 
 void CScriptSystem::RegisterHook(const char* hookId, CScriptHook* cbList)
