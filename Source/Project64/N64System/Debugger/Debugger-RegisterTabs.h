@@ -158,6 +158,7 @@ private:
 	
 	CWindow m_FPRTab;
 	CEditNumber m_FPREdits[COUNT_OF(FPREditIds) - 1];
+	CEditNumber m_FCSREdit;
 	
 	CWindow m_COP0Tab;
 	CEditNumber m_COP0Edits[COUNT_OF(COP0EditIds) - 1];

@@ -49,6 +49,10 @@ void CRegisterTabs::Attach(HWND hWndNew)
 	m_LOEdit.Attach(m_GPRTab.GetDlgItem(IDC_LO_EDIT));
 	m_LOEdit.SetFont(monoFont, FALSE);
 
+	m_FCSREdit.Attach(m_FPRTab.GetDlgItem(IDC_FCSR_EDIT));
+	m_FCSREdit.SetDisplayType(CEditNumber::DisplayHex);
+	m_FCSREdit.SetFont(monoFont);
+
 	for (int i = 0; PIEditIds[i] != 0; i++)
 	{
 		m_PIEdits[i].Attach(m_PITab.GetDlgItem(PIEditIds[i]));
@@ -158,6 +162,8 @@ void CRegisterTabs::RefreshEdits()
 		m_HIEdit.SetValue(g_Reg->m_HI.UDW);
 		m_LOEdit.SetValue(g_Reg->m_LO.UDW);
 
+		m_FCSREdit.SetValue(g_Reg->m_FPCR[31], false, true);
+
 		m_PIEdits[0].SetValue(g_Reg->PI_DRAM_ADDR_REG, false, true);
 		m_PIEdits[1].SetValue(g_Reg->PI_CART_ADDR_REG, false, true);
 		m_PIEdits[2].SetValue(g_Reg->PI_RD_LEN_REG, false, true);
@@ -207,6 +213,8 @@ void CRegisterTabs::RefreshEdits()
 		}
 		m_HIEdit.SetValue(0);
 		m_LOEdit.SetValue(0);
+
+		m_FCSREdit.SetValue(0);
 
 		for (int i = 0; i < 13; i++)
 		{
@@ -343,7 +351,6 @@ INT_PTR CALLBACK CRegisterTabs::TabProcFPR(HWND hDlg, UINT msg, WPARAM wParam, L
 
 	if (notification == EN_KILLFOCUS)
 	{
-
 		WORD controlID = LOWORD(wParam);
 		char regText[9];
 		CWindow edit = ::GetDlgItem(hDlg, controlID);
@@ -355,6 +362,12 @@ INT_PTR CALLBACK CRegisterTabs::TabProcFPR(HWND hDlg, UINT msg, WPARAM wParam, L
 		CBreakpoints* breakpoints = ((CDebuggerUI*)g_Debugger)->Breakpoints();
 		if (g_Reg == NULL || !breakpoints->isDebugging())
 		{
+			return FALSE;
+		}
+
+		if (controlID == IDC_FCSR_EDIT)
+		{
+			g_Reg->m_FPCR[31] = value;
 			return FALSE;
 		}
 
