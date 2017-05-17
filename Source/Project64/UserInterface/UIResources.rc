@@ -1448,14 +1448,14 @@ BEGIN
     BEGIN
         MENUITEM "Run to line",                 ID_POPUPMENU_RUNTO
         MENUITEM SEPARATOR
+        MENUITEM "Follow",                      ID_POPUPMENU_FOLLOWJUMP
+        MENUITEM SEPARATOR
+        MENUITEM "Add symbol...",               ID_POPUPMENU_ADDSYMBOL
+        MENUITEM SEPARATOR
         MENUITEM "Replace with NOP",            ID_POPUPMENU_INSERTNOP
         MENUITEM "Edit code",                   ID_POPUPMENU_EDIT
         MENUITEM "Restore code",                ID_POPUPMENU_RESTORE
         MENUITEM "Restore all code",            ID_POPUPMENU_RESTOREALL
-        MENUITEM SEPARATOR
-        MENUITEM "Follow jump",                 ID_POPUPMENU_FOLLOWJUMP
-        MENUITEM SEPARATOR
-        MENUITEM "Add symbol...",               ID_POPUPMENU_ADDSYMBOL
     END
 END
 

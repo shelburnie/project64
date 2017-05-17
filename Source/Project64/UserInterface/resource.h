@@ -544,6 +544,7 @@
 #define ID_POPUPMENU_FOLLOWJUMP         40032
 #define ID_POPUPMENU_RU                 40033
 #define ID_POPUPMENU_RUNTO              40034
+#define ID_Menu                         40035
 #define ID_POPUPMENU_ROMDIRECTORY       40137
 #define ID_POPUPMENU_REFRESHROMLIST     40138
 #define ID_POPUPMENU_PLAYGAME           40152
@@ -559,7 +560,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        194
-#define _APS_NEXT_COMMAND_VALUE         40035
+#define _APS_NEXT_COMMAND_VALUE         40036
 #define _APS_NEXT_CONTROL_VALUE         1363
 #define _APS_NEXT_SYMED_VALUE           102
 #endif

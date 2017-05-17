@@ -258,6 +258,13 @@ void CDebugCommandsView::AddBranchArrow(int startPos, int endPos)
 	m_BranchArrows.push_back({ startPos, endPos, startMargin, endMargin, margin });
 }
 
+void CDebugCommandsView::HistoryPushState()
+{
+	m_History.push_back(m_StartAddress);
+	m_HistoryIndex = m_History.size() - 1;
+	ToggleHistoryButtons();
+}
+
 void CDebugCommandsView::ShowAddress(DWORD address, BOOL top)
 {
 	if (top == TRUE)
@@ -289,9 +296,7 @@ void CDebugCommandsView::ShowAddress(DWORD address, BOOL top)
 
 		if (m_History.size() == 0 || m_History[m_HistoryIndex] != m_StartAddress)
 		{
-			m_History.push_back(m_StartAddress);
-			m_HistoryIndex = m_History.size() - 1;
-			ToggleHistoryButtons();
+			HistoryPushState();
 		}
 
 		m_bIgnorePCChange = true;
@@ -860,12 +865,10 @@ LRESULT CDebugCommandsView::OnClicked(WORD /*wNotifyCode*/, WORD wID, HWND /*hWn
 		m_AddSymbolDlg.DoModal(m_Debugger, m_SelectedAddress, CSymbols::TYPE_CODE);
 		break;
 	case ID_POPUPMENU_FOLLOWJUMP:
-		{
-			m_History.push_back(m_StartAddress);
-			uint32_t targetAddr = (m_SelectedAddress & 0xF0000000) | (m_SelectedOpCode.target * 4);
-			ShowAddress(targetAddr, FALSE);
-			break;
-		}
+		HistoryPushState();
+		ShowAddress(m_FollowAddress, TRUE);
+		HistoryPushState();
+		break;
 	}
 	return FALSE;
 }
@@ -1003,11 +1006,19 @@ LRESULT	CDebugCommandsView::OnCommandListRightClicked(NMHDR* pNMHDR)
 	
 	g_MMU->LW_VAddr(m_SelectedAddress, m_SelectedOpCode.Hex);
 
-	if (!m_SelectedOpInfo.IsStaticJump())
+	if (m_SelectedOpInfo.IsStaticJump())
+	{
+		m_FollowAddress = (m_SelectedAddress & 0xF0000000) | (m_SelectedOpCode.target * 4);
+	}
+	else if (m_SelectedOpInfo.IsBranch())
+	{
+		m_FollowAddress = m_SelectedAddress + ((int16_t)m_SelectedOpCode.offset + 1) * 4;
+	}
+	else
 	{
 		EnableMenuItem(hPopupMenu, ID_POPUPMENU_FOLLOWJUMP, MF_DISABLED | MF_GRAYED);
 	}
-
+	
 	POINT mouse;
 	GetCursorPos(&mouse);
 

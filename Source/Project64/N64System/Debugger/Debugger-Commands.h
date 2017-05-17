@@ -133,10 +133,13 @@ private:
 	CButton m_GoButton;
 
 	bool m_bEditing;
-	CEditOp m_OpEdit;
+	CEditOp  m_OpEdit;
+
 	uint32_t m_SelectedAddress;
 	COpInfo  m_SelectedOpInfo;
-	OPCODE&   m_SelectedOpCode = m_SelectedOpInfo.m_OpCode;
+	OPCODE&  m_SelectedOpCode = m_SelectedOpInfo.m_OpCode;
+
+	uint32_t m_FollowAddress;
 
 	typedef struct {
 		uint32_t address;
@@ -173,6 +176,7 @@ private:
 	
 	bool AddressSafe(uint32_t vaddr);
 
+	void HistoryPushState();
 	void ToggleHistoryButtons();
 
 	LRESULT	OnInitDialog         (UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
