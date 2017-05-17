@@ -842,6 +842,7 @@ LRESULT CDebugCommandsView::OnClicked(WORD /*wNotifyCode*/, WORD wID, HWND /*hWn
 		break;
 	case ID_POPUPMENU_FOLLOWJUMP:
 		{
+			m_History.push_back(m_StartAddress);
 			uint32_t targetAddr = (m_SelectedAddress & 0xF0000000) | (m_SelectedOpCode.target * 4);
 			ShowAddress(targetAddr, FALSE);
 			break;
