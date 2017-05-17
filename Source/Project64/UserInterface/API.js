@@ -140,21 +140,24 @@ const events = (function()
 		},
 		onexec: function(addr, callback)
 		{
-			events.on('exec', callback, addr)
+			return events.on('exec', callback, addr)
 		},
 		onread: function(addr, callback)
 		{
-			events.on('read', callback, addr)
+		    return events.on('read', callback, addr)
 		},
 		onwrite: function(addr, callback)
 		{
-			events.on('write', callback, addr)
+		    return events.on('write', callback, addr)
 		},
 		ondraw: function(callback)
 		{
-		    events.on('draw', callback, 0)
+		    return events.on('draw', callback, 0)
 		},
-		off: function(){},
+		remove: function(callbackId)
+		{
+		    _native.removeCallback(callbackId)
+		},
 		clear: function(){},
 		_stashCallback: function(callback)
 		{
