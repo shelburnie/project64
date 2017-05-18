@@ -19,6 +19,8 @@
 
 #include <Project64-core/N64System/Mips/OpCodeName.h>
 
+CDebugCommandsView* CDebugCommandsView::_this = NULL;
+HHOOK CDebugCommandsView::hHookKeys = NULL;
 
 CDebugCommandsView::CDebugCommandsView(CDebuggerUI * debugger) :
 CDebugDialog<CDebugCommandsView>(debugger)
@@ -122,6 +124,11 @@ LRESULT	CDebugCommandsView::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARA
 		m_SkipButton.EnableWindow(TRUE);
 		m_GoButton.EnableWindow(TRUE);
 	}
+	
+	_this = this;
+
+	DWORD dwThreadID = ::GetCurrentThreadId();
+	hHookKeys = SetWindowsHookEx(WH_GETMESSAGE, (HOOKPROC)HookProc, NULL, dwThreadID);
 
 	WindowCreated();
 	return TRUE;
@@ -129,6 +136,42 @@ LRESULT	CDebugCommandsView::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARA
 
 LRESULT CDebugCommandsView::OnDestroy(void)
 {
+	return 0;
+}
+
+void CDebugCommandsView::InterceptKeyDown(WPARAM wParam, LPARAM lParam)
+{
+	switch (wParam)
+	{
+	case VK_F1:
+		CPUSkip();
+		break;
+	case VK_F2:
+		CPUStepInto();
+		break;
+	case VK_F3:
+		// reserved step over
+		break;
+	case VK_F4:
+		CPUResume();
+		break;
+	}
+}
+
+LRESULT CALLBACK CDebugCommandsView::HookProc(int nCode, WPARAM wParam, LPARAM lParam)
+{
+	MSG *pMsg = (MSG*)lParam;
+
+	if (pMsg->message == WM_KEYDOWN)
+	{
+		_this->InterceptKeyDown(pMsg->wParam, pMsg->lParam);
+	}
+
+	if (nCode < 0)
+	{
+		return CallNextHookEx(hHookKeys, nCode, wParam, lParam);
+	}
+
 	return 0;
 }
 
@@ -778,6 +821,30 @@ void CDebugCommandsView::RemoveSelectedBreakpoints()
 	RefreshBreakpointList();
 }
 
+void CDebugCommandsView::CPUSkip()
+{
+	m_Breakpoints->KeepDebugging();
+	m_Breakpoints->Skip();
+	m_Breakpoints->Resume();
+}
+
+void CDebugCommandsView::CPUStepInto()
+{
+	m_Debugger->Debug_RefreshStackWindow();
+	m_Breakpoints->KeepDebugging();
+	m_Breakpoints->Resume();
+}
+
+void CDebugCommandsView::CPUResume()
+{
+	m_Debugger->Debug_RefreshStackWindow();
+	m_Breakpoints->StopDebugging();
+	m_Breakpoints->Resume();
+	m_RegisterTabs.SetColorsEnabled(false);
+	m_RegisterTabs.RefreshEdits();
+	ShowAddress(m_StartAddress, TRUE);
+}
+
 LRESULT CDebugCommandsView::OnClicked(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	switch (wID)
@@ -811,22 +878,16 @@ LRESULT CDebugCommandsView::OnClicked(WORD /*wNotifyCode*/, WORD wID, HWND /*hWn
 		// Add temp bp and resume
 		m_Breakpoints->EBPAdd(m_SelectedAddress, true);
 	case IDC_GO_BTN:
-		m_Debugger->Debug_RefreshStackWindow();
-		m_Breakpoints->StopDebugging();
-		m_Breakpoints->Resume();
-		m_RegisterTabs.SetColorsEnabled(false);
-		m_RegisterTabs.RefreshEdits();
-		ShowAddress(m_StartAddress, TRUE);
+		CPUResume();
+		m_AddressEdit.SetFocus();
 		break;
 	case IDC_STEP_BTN:
-		m_Debugger->Debug_RefreshStackWindow();
-		m_Breakpoints->KeepDebugging();
-		m_Breakpoints->Resume();
+		CPUStepInto();
+		m_AddressEdit.SetFocus();
 		break;
 	case IDC_SKIP_BTN:
-		m_Breakpoints->KeepDebugging();
-		m_Breakpoints->Skip();
-		m_Breakpoints->Resume();
+		CPUSkip();
+		m_AddressEdit.SetFocus();
 		break;
 	case IDC_CLEARBP_BTN:
 		m_Breakpoints->BPClear();

@@ -179,6 +179,15 @@ private:
 	void HistoryPushState();
 	void ToggleHistoryButtons();
 
+	static CDebugCommandsView* _this;
+	static HHOOK hHookKeys;
+	static LRESULT CALLBACK HookProc(int nCode, WPARAM wParam, LPARAM lParam);
+	void InterceptKeyDown(WPARAM wParam, LPARAM lParam);
+
+	void CPUSkip();
+	void CPUStepInto();
+	void CPUResume();
+
 	LRESULT	OnInitDialog         (UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	LRESULT	OnActivate           (UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	LRESULT	OnSizing             (UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
@@ -190,7 +199,7 @@ private:
 	LRESULT OnPCChanged        (WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled);
 	LRESULT OnListBoxClicked     (WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled);
 	LRESULT	OnClicked            (WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled);
-	
+
 	LRESULT	OnOpKeyDown(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	
 	LRESULT	OnCommandListClicked(NMHDR* pNMHDR);
@@ -199,7 +208,7 @@ private:
 	LRESULT OnRegisterTabChange  (NMHDR* pNMHDR);
 	LRESULT OnCustomDrawList     (NMHDR* pNMHDR);
 	LRESULT OnDestroy            (void);
-
+	
 	// todo fix mousewheel
 	// win10 - doesn't work while hovering over list controls
 	// win7 - only works while a control has keyboard focus
