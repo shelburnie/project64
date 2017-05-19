@@ -20,7 +20,7 @@
 #include <Project64-core/N64System/Mips/OpCodeName.h>
 
 CDebugCommandsView* CDebugCommandsView::_this = NULL;
-HHOOK CDebugCommandsView::hHookKeys = NULL;
+HHOOK CDebugCommandsView::hWinMessageHook = NULL;
 
 CDebugCommandsView::CDebugCommandsView(CDebuggerUI * debugger) :
 CDebugDialog<CDebugCommandsView>(debugger)
@@ -128,7 +128,7 @@ LRESULT	CDebugCommandsView::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARA
 	_this = this;
 
 	DWORD dwThreadID = ::GetCurrentThreadId();
-	hHookKeys = SetWindowsHookEx(WH_GETMESSAGE, (HOOKPROC)HookProc, NULL, dwThreadID);
+	hWinMessageHook = SetWindowsHookEx(WH_GETMESSAGE, (HOOKPROC)HookProc, NULL, dwThreadID);
 
 	WindowCreated();
 	return TRUE;
@@ -143,19 +143,22 @@ void CDebugCommandsView::InterceptKeyDown(WPARAM wParam, LPARAM lParam)
 {
 	switch (wParam)
 	{
-	case VK_F1:
-		CPUSkip();
-		break;
-	case VK_F2:
-		CPUStepInto();
-		break;
+	case VK_F1: CPUSkip(); break;
+	case VK_F2: CPUStepInto(); break;
 	case VK_F3:
 		// reserved step over
 		break;
-	case VK_F4:
-		CPUResume();
-		break;
+	case VK_F4: CPUResume(); break;
 	}
+}
+
+void CDebugCommandsView::InterceptMouseWheel(WPARAM wParam, LPARAM lParam)
+{
+	uint32_t newAddress = m_StartAddress - ((short)HIWORD(wParam) / WHEEL_DELTA) * 4;
+
+	m_StartAddress = newAddress;
+
+	m_AddressEdit.SetValue(m_StartAddress, false, true);
 }
 
 LRESULT CALLBACK CDebugCommandsView::HookProc(int nCode, WPARAM wParam, LPARAM lParam)
@@ -166,10 +169,15 @@ LRESULT CALLBACK CDebugCommandsView::HookProc(int nCode, WPARAM wParam, LPARAM l
 	{
 		_this->InterceptKeyDown(pMsg->wParam, pMsg->lParam);
 	}
+	else if (pMsg->message == WM_MOUSEWHEEL)
+	{
+		BOOL bHandled = TRUE;
+		_this->InterceptMouseWheel(pMsg->wParam, pMsg->lParam);
+	}
 
 	if (nCode < 0)
 	{
-		return CallNextHookEx(hHookKeys, nCode, wParam, lParam);
+		return CallNextHookEx(hWinMessageHook, nCode, wParam, lParam);
 	}
 
 	return 0;
@@ -1152,17 +1160,6 @@ LRESULT CDebugCommandsView::OnClicked(WORD /*wNotifyCode*/, WORD wID, HWND /*hWn
 		break;
 	}
 	return FALSE;
-}
-
-LRESULT CDebugCommandsView::OnMouseWheel(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
-{
-	uint32_t newAddress = m_StartAddress - ((short)HIWORD(wParam) / WHEEL_DELTA) * 4;
-	
-	m_StartAddress = newAddress;
-
-	m_AddressEdit.SetValue(m_StartAddress, false, true);
-
-	return TRUE;
 }
 
 void CDebugCommandsView::GotoEnteredAddress()

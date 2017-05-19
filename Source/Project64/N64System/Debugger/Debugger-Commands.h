@@ -182,9 +182,10 @@ private:
 	void ToggleHistoryButtons();
 
 	static CDebugCommandsView* _this;
-	static HHOOK hHookKeys;
+	static HHOOK hWinMessageHook;
 	static LRESULT CALLBACK HookProc(int nCode, WPARAM wParam, LPARAM lParam);
 	void InterceptKeyDown(WPARAM wParam, LPARAM lParam);
+	void InterceptMouseWheel(WPARAM wParam, LPARAM lParam);
 
 	static const char* GetCodeAddressNotes(uint32_t vAddr);
 	static const char* GetDataAddressNotes(uint32_t vAddr);
@@ -196,8 +197,6 @@ private:
 	LRESULT	OnInitDialog         (UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	LRESULT	OnActivate           (UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	LRESULT	OnSizing             (UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
-	//LRESULT	OnGetMinMaxInfo      (UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
-	LRESULT OnMouseWheel         (UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	LRESULT	OnScroll             (UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	LRESULT	OnMeasureItem        (UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	LRESULT OnAddrChanged        (WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled);
@@ -213,18 +212,12 @@ private:
 	LRESULT OnRegisterTabChange  (NMHDR* pNMHDR);
 	LRESULT OnCustomDrawList     (NMHDR* pNMHDR);
 	LRESULT OnDestroy            (void);
-	
-	// todo fix mousewheel
-	// win10 - doesn't work while hovering over list controls
-	// win7 - only works while a control has keyboard focus
 
 	BEGIN_MSG_MAP_EX(CDebugCommandsView)
-		//MESSAGE_HANDLER(WM_PAINT, OnPaint)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
 		MESSAGE_HANDLER(WM_ACTIVATE, OnActivate)
 		MESSAGE_HANDLER(WM_SIZING, OnSizing)
 		MESSAGE_HANDLER(WM_GETMINMAXINFO, OnGetMinMaxInfo)
-		MESSAGE_HANDLER(WM_MOUSEWHEEL, OnMouseWheel)
 		MESSAGE_HANDLER(WM_VSCROLL, OnScroll)
 		MESSAGE_HANDLER(WM_MEASUREITEM, OnMeasureItem)
 		COMMAND_HANDLER(IDC_ADDR_EDIT, EN_CHANGE, OnAddrChanged)
@@ -236,7 +229,6 @@ private:
 		NOTIFY_HANDLER_EX(IDC_CMD_LIST, NM_RCLICK, OnCommandListRightClicked)
 		NOTIFY_HANDLER_EX(IDC_REG_TABS, TCN_SELCHANGE, OnRegisterTabChange)
 		NOTIFY_HANDLER_EX(IDC_CMD_LIST, NM_CUSTOMDRAW, OnCustomDrawList)
-		//CHAIN_MSG_MAP_MEMBER(m_CommandList)
 		MSG_WM_DESTROY(OnDestroy)
 		CHAIN_MSG_MAP(CDialogResize<CDebugCommandsView>)
 	END_MSG_MAP()
