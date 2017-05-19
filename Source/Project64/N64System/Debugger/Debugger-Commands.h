@@ -161,6 +161,8 @@ private:
 	void ClearBranchArrows();
 	void DrawBranchArrows(HDC listDC);
 
+	vector<bool> m_bvAnnotatedLines;
+
 	void ClearEditedOps();
 	void EditOp(uint32_t address, uint32_t op);
 	void RestoreOp(uint32_t address);
@@ -184,8 +186,9 @@ private:
 	static LRESULT CALLBACK HookProc(int nCode, WPARAM wParam, LPARAM lParam);
 	void InterceptKeyDown(WPARAM wParam, LPARAM lParam);
 
-	static const char* GetAddressNotes(uint32_t vAddr);
-
+	static const char* GetCodeAddressNotes(uint32_t vAddr);
+	static const char* GetDataAddressNotes(uint32_t vAddr);
+	
 	void CPUSkip();
 	void CPUStepInto();
 	void CPUResume();

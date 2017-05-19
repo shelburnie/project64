@@ -308,20 +308,20 @@ void CDebugCommandsView::HistoryPushState()
 	ToggleHistoryButtons();
 }
 
-const char* CDebugCommandsView::GetAddressNotes(uint32_t vAddr)
+const char* CDebugCommandsView::GetDataAddressNotes(uint32_t vAddr)
 {
 	switch (vAddr)
 	{
-	case 0xA3F00000: return "RDRAM_CONFIG_REG/RDRAM_DEVICE_TYPE_REG";
-	case 0xA3F00004: return "RDRAM_DEVICE_ID_REG";
-	case 0xA3F00008: return "RDRAM_DELAY_REG";
-	case 0xA3F0000C: return "RDRAM_MODE_REG";
-	case 0xA3F00010: return "RDRAM_REF_INTERVAL_REG";
-	case 0xA3F00014: return "RDRAM_REF_ROW_REG";
-	case 0xA3F00018: return "RDRAM_RAS_INTERVAL_REG";
-	case 0xA3F0001C: return "RDRAM_MIN_INTERVAL_REG";
-	case 0xA3F00020: return "RDRAM_ADDR_SELECT_REG";
-	case 0xA3F00024: return "RDRAM_DEVICE_MANUF_REG";
+	case 0xA3F00000: return "RDRAM_CONFIG_REG/RDRAM_DEVICE_TYPE_REG)";
+	case 0xA3F00004: return "RDRAM_DEVICE_ID_REG)";
+	case 0xA3F00008: return "RDRAM_DELAY_REG)";
+	case 0xA3F0000C: return "RDRAM_MODE_REG)";
+	case 0xA3F00010: return "RDRAM_REF_INTERVAL_REG)";
+	case 0xA3F00014: return "RDRAM_REF_ROW_REG)";
+	case 0xA3F00018: return "RDRAM_RAS_INTERVAL_REG)";
+	case 0xA3F0001C: return "RDRAM_MIN_INTERVAL_REG)";
+	case 0xA3F00020: return "RDRAM_ADDR_SELECT_REG)";
+	case 0xA3F00024: return "RDRAM_DEVICE_MANUF_REG)";
 
 	case 0xA4040000: return "SP_MEM_ADDR_REG";
 	case 0xA4040004: return "SP_DRAM_ADDR_REG";
@@ -333,7 +333,7 @@ const char* CDebugCommandsView::GetAddressNotes(uint32_t vAddr)
 	case 0xA404001C: return "SP_SEMAPHORE_REG";
 
 	case 0xA4080000: return "SP_PC";
-	
+
 	case 0xA4100000: return "DPC_START_REG";
 	case 0xA4100004: return "DPC_END_REG";
 	case 0xA4100008: return "DPC_CURRENT_REG";
@@ -347,7 +347,7 @@ const char* CDebugCommandsView::GetAddressNotes(uint32_t vAddr)
 	case 0xA4300004: return "MI_VERSION_REG/MI_NOOP_REG";
 	case 0xA4300008: return "MI_INTR_REG";
 	case 0xA430000C: return "MI_INTR_MASK_REG";
-	
+
 	case 0xA4400000: return "VI_STATUS_REG/VI_CONTROL_REG";
 	case 0xA4400004: return "VI_ORIGIN_REG/VI_DRAM_ADDR_REG";
 	case 0xA4400008: return "VI_WIDTH_REG/VI_H_WIDTH_REG";
@@ -399,10 +399,44 @@ const char* CDebugCommandsView::GetAddressNotes(uint32_t vAddr)
 	case 0xA4800018: return "SI_STATUS_REG";
 
 	case 0xB0000004: return "Header: Clock rate";
-	case 0xB0000008: return "Header: Entry point";
+	case 0xB0000008: return "Header: Game entry point";
 	case 0xB000000C: return "Header: Release";
 	case 0xB0000010: return "Header: CRC1";
 	case 0xB0000014: return "Header: CRC2";
+	}
+
+	return NULL;
+}
+
+const char* CDebugCommandsView::GetCodeAddressNotes(uint32_t vAddr)
+{
+	switch (vAddr)
+	{
+	case 0x80000000: return "Exception: TLB Refill";
+	case 0x80000080: return "Exception: XTLB Refill";
+	case 0x80000100: return "Exception: Cache error (See A0000100)";
+	case 0x80000180: return "Exception: General";
+
+	case 0xA0000100: return "Exception: Cache error";
+
+	case 0xBFC00000: return "Exception: Reset/NMI";
+	case 0xBFC00200: return "Exception: TLB Refill (boot)";
+	case 0xBFC00280: return "Exception: XTLB Refill (boot)";
+	case 0xBFC00300: return "Exception: Cache error (boot)";
+	case 0xBFC00380: return "Exception: General (boot)";
+	}
+
+	if (g_MMU == NULL)
+	{
+		return NULL;
+	}
+
+	uint32_t gameEntryPoint;
+	g_MMU->LW_VAddr(0xB0000008, gameEntryPoint);
+
+	if (vAddr == gameEntryPoint)
+	{
+		return "Game entry point";
 	}
 
 	return NULL;
@@ -459,6 +493,8 @@ void CDebugCommandsView::ShowAddress(DWORD address, BOOL top)
 	
 	ClearBranchArrows();
 	
+	m_bvAnnotatedLines.clear();
+
 	CSymbols::EnterCriticalSection();
 
 	for (int i = 0; i < m_CommandListRows; i++)
@@ -484,6 +520,7 @@ void CDebugCommandsView::ShowAddress(DWORD address, BOOL top)
 		if (!bAddrOkay)
 		{
 			m_CommandList.AddItem(i, CCommandList::COL_COMMAND, "***");
+			m_bvAnnotatedLines.push_back(false);
 			continue;
 		}
 
@@ -505,9 +542,10 @@ void CDebugCommandsView::ShowAddress(DWORD address, BOOL top)
 		}
 
 		// Detect reads and writes to mapped registers, cart header data, etc
-		const char* addressNotes = NULL;
+		const char* annotation = NULL;
+		bool bLoadStoreAnnotation = false;
 
-		if (OpCode.op == R4300i_LW || OpCode.op == R4300i_SW)
+		if (OpInfo.IsLoadStore())
 		{
 			for (int i = -4; i > -24; i -= 4)
 			{
@@ -536,9 +574,23 @@ void CDebugCommandsView::ShowAddress(DWORD address, BOOL top)
 
 				uint32_t memAddr = (OpCodeTest.immediate << 16) + (short)OpCode.offset;
 
-				addressNotes = GetAddressNotes(memAddr);
+				annotation = CSymbols::GetNameByAddress(memAddr);
+
+				if (annotation == NULL)
+				{
+					annotation = GetDataAddressNotes(memAddr);
+				}
 				break;
 			}
+		}
+
+		if (annotation == NULL)
+		{
+			annotation = GetCodeAddressNotes(opAddr);
+		}
+		else
+		{
+			bLoadStoreAnnotation = true;
 		}
 		
 		m_CommandList.AddItem(i, CCommandList::COL_COMMAND, cmdName);
@@ -549,10 +601,17 @@ void CDebugCommandsView::ShowAddress(DWORD address, BOOL top)
 		if (routineSymbolName != NULL)
 		{
 			m_CommandList.AddItem(i, CCommandList::COL_SYMBOL, routineSymbolName);
+			m_bvAnnotatedLines.push_back(false);
 		}
-		else if (addressNotes != NULL)
+		else if (annotation != NULL)
 		{
-			m_CommandList.AddItem(i, CCommandList::COL_SYMBOL, stdstr_f("// %s", addressNotes).c_str());
+			const char* annotationFormat = bLoadStoreAnnotation ? "// (%s)" : "// %s";
+			m_CommandList.AddItem(i, CCommandList::COL_SYMBOL, stdstr_f(annotationFormat, annotation).c_str());
+			m_bvAnnotatedLines.push_back(true);
+		}
+		else
+		{
+			m_bvAnnotatedLines.push_back(false);
 		}
 
 		// Add arrow for branch instruction
@@ -718,6 +777,15 @@ LRESULT CDebugCommandsView::OnCustomDrawList(NMHDR* pNMHDR)
 	else
 	{
 		colors = { 0xFFFFFF, 0x0000000 };
+	}
+	
+	// Gray annotations
+	if (nSubItem == CCommandList::COL_SYMBOL)
+	{
+		if (m_bvAnnotatedLines[nItem])
+		{
+			colors.fg = 0x666666;
+		}
 	}
 
 	pLVCD->clrTextBk = _byteswap_ulong(colors.bg) >> 8;
