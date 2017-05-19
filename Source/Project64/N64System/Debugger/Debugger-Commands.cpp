@@ -308,6 +308,106 @@ void CDebugCommandsView::HistoryPushState()
 	ToggleHistoryButtons();
 }
 
+const char* CDebugCommandsView::GetAddressNotes(uint32_t vAddr)
+{
+	switch (vAddr)
+	{
+	case 0xA3F00000: return "RDRAM_CONFIG_REG/RDRAM_DEVICE_TYPE_REG";
+	case 0xA3F00004: return "RDRAM_DEVICE_ID_REG";
+	case 0xA3F00008: return "RDRAM_DELAY_REG";
+	case 0xA3F0000C: return "RDRAM_MODE_REG";
+	case 0xA3F00010: return "RDRAM_REF_INTERVAL_REG";
+	case 0xA3F00014: return "RDRAM_REF_ROW_REG";
+	case 0xA3F00018: return "RDRAM_RAS_INTERVAL_REG";
+	case 0xA3F0001C: return "RDRAM_MIN_INTERVAL_REG";
+	case 0xA3F00020: return "RDRAM_ADDR_SELECT_REG";
+	case 0xA3F00024: return "RDRAM_DEVICE_MANUF_REG";
+
+	case 0xA4040000: return "SP_MEM_ADDR_REG";
+	case 0xA4040004: return "SP_DRAM_ADDR_REG";
+	case 0xA4040008: return "SP_RD_LEN_REG";
+	case 0xA404000C: return "SP_WR_LEN_REG";
+	case 0xA4040010: return "SP_STATUS_REG";
+	case 0xA4040014: return "SP_DMA_FULL_REG";
+	case 0xA4040018: return "SP_DMA_BUSY_REG";
+	case 0xA404001C: return "SP_SEMAPHORE_REG";
+
+	case 0xA4080000: return "SP_PC";
+	
+	case 0xA4100000: return "DPC_START_REG";
+	case 0xA4100004: return "DPC_END_REG";
+	case 0xA4100008: return "DPC_CURRENT_REG";
+	case 0xA410000C: return "DPC_STATUS_REG";
+	case 0xA4100010: return "DPC_CLOCK_REG";
+	case 0xA4100014: return "DPC_BUFBUSY_REG";
+	case 0xA4100018: return "DPC_PIPEBUSY_REG";
+	case 0xA410001C: return "DPC_TMEM_REG";
+
+	case 0xA4300000: return "MI_INIT_MODE_REG/MI_MODE_REG";
+	case 0xA4300004: return "MI_VERSION_REG/MI_NOOP_REG";
+	case 0xA4300008: return "MI_INTR_REG";
+	case 0xA430000C: return "MI_INTR_MASK_REG";
+	
+	case 0xA4400000: return "VI_STATUS_REG/VI_CONTROL_REG";
+	case 0xA4400004: return "VI_ORIGIN_REG/VI_DRAM_ADDR_REG";
+	case 0xA4400008: return "VI_WIDTH_REG/VI_H_WIDTH_REG";
+	case 0xA440000C: return "VI_INTR_REG/VI_V_INTR_REG";
+	case 0xA4400010: return "VI_CURRENT_REG/VI_V_CURRENT_LINE_REG";
+	case 0xA4400014: return "VI_BURST_REG/VI_TIMING_REG";
+	case 0xA4400018: return "VI_V_SYNC_REG";
+	case 0xA440001C: return "VI_H_SYNC_REG";
+	case 0xA4400020: return "VI_LEAP_REG/VI_H_SYNC_LEAP_REG";
+	case 0xA4400024: return "VI_H_START_REG/VI_H_VIDEO_REG";
+	case 0xA4400028: return "VI_V_START_REG/VI_V_VIDEO_REG";
+	case 0xA440002C: return "VI_V_BURST_REG";
+	case 0xA4400030: return "VI_X_SCALE_REG";
+	case 0xA4400034: return "VI_Y_SCALE_REG";
+
+	case 0xA4500000: return "AI_DRAM_ADDR_REG";
+	case 0xA4500004: return "AI_LEN_REG";
+	case 0xA4500008: return "AI_CONTROL_REG";
+	case 0xA450000C: return "AI_STATUS_REG";
+	case 0xA4500010: return "AI_DACRATE_REG";
+	case 0xA4500014: return "AI_BITRATE_REG";
+
+	case 0xA4600000: return "PI_DRAM_ADDR_REG";
+	case 0xA4600004: return "PI_CART_ADDR_REG";
+	case 0xA4600008: return "PI_RD_LEN_REG";
+	case 0xA460000C: return "PI_WR_LEN_REG";
+	case 0xA4600010: return "PI_STATUS_REG";
+	case 0xA4600014: return "PI_BSD_DOM1_LAT_REG";
+	case 0xA4600018: return "PI_BSD_DOM1_PWD_REG";
+	case 0xA460001C: return "PI_BSD_DOM1_PGS_REG";
+	case 0xA4600020: return "PI_BSD_DOM1_RLS_REG";
+	case 0xA4600024: return "PI_BSD_DOM2_LAT_REG";
+	case 0xA4600028: return "PI_BSD_DOM2_PWD_REG";
+	case 0xA460002C: return "PI_BSD_DOM2_PGS_REG";
+	case 0xA4600030: return "PI_BSD_DOM2_RLS_REG";
+
+	case 0xA4700000: return "RI_MODE_REG";
+	case 0xA4700004: return "RI_CONFIG_REG";
+	case 0xA4700008: return "RI_CURRENT_LOAD_REG";
+	case 0xA470000C: return "RI_SELECT_REG";
+	case 0xA4700010: return "RI_REFRESH_REG/RI_COUNT_REG";
+	case 0xA4700014: return "RI_LATENCY_REG";
+	case 0xA4700018: return "RI_RERROR_REG";
+	case 0xA470001C: return "RI_WERROR_REG";
+
+	case 0xA4800000: return "SI_DRAM_ADDR_REG";
+	case 0xA4800004: return "SI_PIF_ADDR_RD64B_REG";
+	case 0xA4800010: return "SI_PIF_ADDR_WR64B_REG";
+	case 0xA4800018: return "SI_STATUS_REG";
+
+	case 0xB0000004: return "Header: Clock rate";
+	case 0xB0000008: return "Header: Entry point";
+	case 0xB000000C: return "Header: Release";
+	case 0xB0000010: return "Header: CRC1";
+	case 0xB0000014: return "Header: CRC2";
+	}
+
+	return NULL;
+}
+
 void CDebugCommandsView::ShowAddress(DWORD address, BOOL top)
 {
 	if (top == TRUE)
@@ -362,14 +462,14 @@ void CDebugCommandsView::ShowAddress(DWORD address, BOOL top)
 	CSymbols::EnterCriticalSection();
 
 	for (int i = 0; i < m_CommandListRows; i++)
-	{	
+	{
 		uint32_t opAddr = m_StartAddress + i * 4;
 
 		m_CommandList.AddItem(i, CCommandList::COL_ARROWS, " ");
 
 		char addrStr[9];
 		sprintf(addrStr, "%08X", opAddr);
-		
+
 		m_CommandList.AddItem(i, CCommandList::COL_ADDRESS, addrStr);
 
 		COpInfo OpInfo;
@@ -381,16 +481,16 @@ void CDebugCommandsView::ShowAddress(DWORD address, BOOL top)
 			bAddrOkay = g_MMU->LW_VAddr(opAddr, OpCode.Hex);
 		}
 
-		if(!bAddrOkay)
+		if (!bAddrOkay)
 		{
 			m_CommandList.AddItem(i, CCommandList::COL_COMMAND, "***");
 			continue;
 		}
-		
+
 		char* command = (char*)R4300iOpcodeName(OpCode.Hex, opAddr);
 		char* cmdName = strtok((char*)command, "\t");
 		char* cmdArgs = strtok(NULL, "\t");
-		
+
 		// Show subroutine symbol name for JAL target
 		if (OpCode.op == R4300i_JAL)
 		{
@@ -403,6 +503,43 @@ void CDebugCommandsView::ShowAddress(DWORD address, BOOL top)
 				cmdArgs = (char*)targetSymbolName;
 			}
 		}
+
+		// Detect reads and writes to mapped registers, cart header data, etc
+		const char* addressNotes = NULL;
+
+		if (OpCode.op == R4300i_LW || OpCode.op == R4300i_SW)
+		{
+			for (int i = -4; i > -24; i -= 4)
+			{
+				if (!AddressSafe(opAddr + i))
+				{
+					break;
+				}
+
+				OPCODE OpCodeTest;
+				bAddrOkay = g_MMU->LW_VAddr(opAddr + i, OpCodeTest.Hex);
+
+				if (!bAddrOkay)
+				{
+					break;
+				}
+
+				if (OpCodeTest.op != R4300i_LUI)
+				{
+					continue;
+				}
+
+				if (OpCodeTest.rt != OpCode.rs)
+				{
+					continue;
+				}
+
+				uint32_t memAddr = (OpCodeTest.immediate << 16) + (short)OpCode.offset;
+
+				addressNotes = GetAddressNotes(memAddr);
+				break;
+			}
+		}
 		
 		m_CommandList.AddItem(i, CCommandList::COL_COMMAND, cmdName);
 		m_CommandList.AddItem(i, CCommandList::COL_PARAMETERS, cmdArgs);
@@ -412,6 +549,10 @@ void CDebugCommandsView::ShowAddress(DWORD address, BOOL top)
 		if (routineSymbolName != NULL)
 		{
 			m_CommandList.AddItem(i, CCommandList::COL_SYMBOL, routineSymbolName);
+		}
+		else if (addressNotes != NULL)
+		{
+			m_CommandList.AddItem(i, CCommandList::COL_SYMBOL, stdstr_f("// %s", addressNotes).c_str());
 		}
 
 		// Add arrow for branch instruction

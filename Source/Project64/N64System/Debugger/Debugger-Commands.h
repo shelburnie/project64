@@ -45,7 +45,7 @@ public:
 		SetColumnWidth(COL_ADDRESS, 65);
 		SetColumnWidth(COL_COMMAND, 60);
 		SetColumnWidth(COL_PARAMETERS, 120);
-		SetColumnWidth(COL_SYMBOL, 120);
+		SetColumnWidth(COL_SYMBOL, 140);
 	}
 	
 	BEGIN_MSG_MAP_EX(CCommandsList)
@@ -183,6 +183,8 @@ private:
 	static HHOOK hHookKeys;
 	static LRESULT CALLBACK HookProc(int nCode, WPARAM wParam, LPARAM lParam);
 	void InterceptKeyDown(WPARAM wParam, LPARAM lParam);
+
+	static const char* GetAddressNotes(uint32_t vAddr);
 
 	void CPUSkip();
 	void CPUStepInto();
