@@ -38,10 +38,28 @@ public:
 class CRegisterTabs : public CTabCtrl
 {
 private:
-	// for static dlgprocs, assumes single instance
-	static bool m_bColorsEnabled; 
+	typedef union
+	{
+		uint32_t intval;
 
-	vector<CWindow> m_TabWindows;
+		struct {
+			unsigned : 2;
+			unsigned exceptionCode : 5;
+			unsigned : 1;
+			unsigned pendingInterrupts : 8;
+			unsigned : 12;
+			unsigned coprocessor : 2;
+			unsigned : 1;
+			unsigned fromDelaySlot : 1;
+		};
+
+	} CAUSE;
+
+	enum TAB_ID {
+		TabDefault,
+		TabGPR,
+		TabFPR
+	};
 	
 	static constexpr DWORD GPREditIds[] = {
 		IDC_R0_EDIT,  IDC_R1_EDIT,  IDC_R2_EDIT,  IDC_R3_EDIT,
@@ -66,15 +84,7 @@ private:
 		IDC_F28_EDIT, IDC_F29_EDIT, IDC_F30_EDIT, IDC_F31_EDIT,
 		0
 	};
-
-	static constexpr DWORD PIEditIds[] = {
-		IDC_PI00_EDIT, IDC_PI04_EDIT, IDC_PI08_EDIT, IDC_PI0C_EDIT,
-		IDC_PI10_EDIT, IDC_PI14_EDIT, IDC_PI18_EDIT, IDC_PI1C_EDIT,
-		IDC_PI20_EDIT, IDC_PI24_EDIT, IDC_PI28_EDIT, IDC_PI2C_EDIT,
-		IDC_PI30_EDIT,
-		0
-	};
-
+	
 	static constexpr DWORD COP0EditIds[] = {
 		IDC_COP0_0_EDIT,  IDC_COP0_1_EDIT,  IDC_COP0_2_EDIT,  IDC_COP0_3_EDIT,
 		IDC_COP0_4_EDIT,  IDC_COP0_5_EDIT,  IDC_COP0_6_EDIT,  IDC_COP0_7_EDIT,
@@ -84,7 +94,73 @@ private:
 		0
 	};
 
-	static int MapEdit(DWORD controlId, const DWORD* edits)
+	static constexpr DWORD RDRAMEditIds[] = {
+		IDC_RDRAM00_EDIT, IDC_RDRAM04_EDIT, IDC_RDRAM08_EDIT, IDC_RDRAM0C_EDIT,
+		IDC_RDRAM10_EDIT, IDC_RDRAM14_EDIT, IDC_RDRAM18_EDIT, IDC_RDRAM1C_EDIT,
+		IDC_RDRAM20_EDIT, IDC_RDRAM24_EDIT,
+		0
+	};
+
+	static constexpr DWORD SPEditIds[] = {
+		IDC_SP00_EDIT, IDC_SP04_EDIT, IDC_SP08_EDIT, IDC_SP0C_EDIT,
+		IDC_SP10_EDIT, IDC_SP14_EDIT, IDC_SP18_EDIT, IDC_SP1C_EDIT,
+		0
+	};
+
+	static constexpr DWORD DPCEditIds[] = {
+		IDC_DPC00_EDIT, IDC_DPC04_EDIT, IDC_DPC08_EDIT, IDC_DPC0C_EDIT,
+		IDC_DPC10_EDIT, IDC_DPC14_EDIT, IDC_DPC18_EDIT, IDC_DPC1C_EDIT,
+		0
+	};
+
+	static constexpr DWORD MIEditIds[] = {
+		IDC_MI00_EDIT, IDC_MI04_EDIT, IDC_MI08_EDIT, IDC_MI0C_EDIT,
+		0
+	};
+
+	static constexpr DWORD VIEditIds[] = {
+		IDC_VI00_EDIT, IDC_VI04_EDIT, IDC_VI08_EDIT, IDC_VI0C_EDIT,
+		IDC_VI10_EDIT, IDC_VI14_EDIT, IDC_VI18_EDIT, IDC_VI1C_EDIT,
+		IDC_VI20_EDIT, IDC_VI24_EDIT, IDC_VI28_EDIT, IDC_VI2C_EDIT,
+		IDC_VI30_EDIT, IDC_VI34_EDIT,
+		0
+	};
+
+	static constexpr DWORD AIEditIds[] = {
+		IDC_AI00_EDIT, IDC_AI04_EDIT, IDC_AI08_EDIT, IDC_AI0C_EDIT,
+		IDC_AI10_EDIT, IDC_AI14_EDIT,
+		0
+	};
+	
+	static constexpr DWORD PIEditIds[] = {
+		IDC_PI00_EDIT, IDC_PI04_EDIT, IDC_PI08_EDIT, IDC_PI0C_EDIT,
+		IDC_PI10_EDIT, IDC_PI14_EDIT, IDC_PI18_EDIT, IDC_PI1C_EDIT,
+		IDC_PI20_EDIT, IDC_PI24_EDIT, IDC_PI28_EDIT, IDC_PI2C_EDIT,
+		IDC_PI30_EDIT,
+		0
+	};
+
+	static constexpr DWORD RIEditIds[] = {
+		IDC_RI00_EDIT, IDC_RI04_EDIT, IDC_RI08_EDIT, IDC_RI0C_EDIT,
+		IDC_RI10_EDIT, IDC_RI14_EDIT, IDC_RI18_EDIT, IDC_RI1C_EDIT,
+		0
+	};
+	
+	static constexpr DWORD SIEditIds[] = {
+		IDC_SI00_EDIT, IDC_SI04_EDIT, IDC_SI08_EDIT, IDC_SI0C_EDIT,
+		0
+	};
+
+	static constexpr DWORD DDEditIds[] = {
+		IDC_DD00_EDIT, IDC_DD04_EDIT, IDC_DD08_EDIT, IDC_DD0C_EDIT,
+		IDC_DD10_EDIT, IDC_DD14_EDIT, IDC_DD18_EDIT, IDC_DD1C_EDIT,
+		IDC_DD20_EDIT, IDC_DD24_EDIT, IDC_DD28_EDIT, IDC_DD2C_EDIT,
+		IDC_DD30_EDIT, IDC_DD34_EDIT, IDC_DD38_EDIT, IDC_DD3C_EDIT,
+		IDC_DD40_EDIT, IDC_DD44_EDIT, IDC_DD48_EDIT,
+		0
+	};
+
+	static int MapEditRegNum(DWORD controlId, const DWORD* edits)
 	{
 		for (int i = 0; edits[i] != 0; i++)
 		{
@@ -95,24 +171,7 @@ private:
 		}
 		return -1;
 	}
-
-	typedef union
-	{
-		uint32_t intval;
-
-		struct {
-			unsigned : 2;
-			unsigned exceptionCode : 5;
-			unsigned : 1;
-			unsigned pendingInterrupts : 8;
-			unsigned : 12;
-			unsigned coprocessor : 2;
-			unsigned : 1;
-			unsigned fromDelaySlot : 1;
-		};
-
-	} CAUSE;
-
+	
 	static constexpr char* ExceptionCodes[] = {
 		"Interrupt",
 		"TLB mod",
@@ -148,9 +207,11 @@ private:
 		"Virtual coherency (data)"
 	};
 	
-	CWindow m_PITab;
-	CEditNumber m_PIEdits[COUNT_OF(PIEditIds) - 1];
-	
+	// for static dlgprocs, assumes single instance
+	static bool m_bColorsEnabled;
+
+	vector<CWindow> m_TabWindows;
+
 	CWindow m_GPRTab;
 	CEditReg64 m_GPREdits[COUNT_OF(GPREditIds) - 1];
 	CEditReg64 m_HIEdit;
@@ -164,27 +225,58 @@ private:
 	CEditNumber m_COP0Edits[COUNT_OF(COP0EditIds) - 1];
 	CStatic m_CauseTip;
 
+	CWindow m_RDRAMTab;
+	CEditNumber m_RDRAMEdits[COUNT_OF(RDRAMEditIds) - 1];
+
+	CWindow m_SPTab;
+	CEditNumber m_SPEdits[COUNT_OF(SPEditIds) - 1];
+	CEditNumber m_SPPCEdit;
+
+	CWindow m_DPCTab;
+	CEditNumber m_DPCEdits[COUNT_OF(DPCEditIds) - 1];
+
+	CWindow m_MITab;
+	CEditNumber m_MIEdits[COUNT_OF(MIEditIds) - 1];
+	
+	CWindow m_VITab;
+	CEditNumber m_VIEdits[COUNT_OF(VIEditIds) - 1];
+
+	CWindow m_AITab;
+	CEditNumber m_AIEdits[COUNT_OF(AIEditIds) - 1];
+
+	CWindow m_PITab;
+	CEditNumber m_PIEdits[COUNT_OF(PIEditIds) - 1];
+	
+	CWindow m_RITab;
+	CEditNumber m_RIEdits[COUNT_OF(RIEditIds) - 1];
+
+	CWindow m_SITab;
+	CEditNumber m_SIEdits[COUNT_OF(SIEditIds) - 1];
+
+	CWindow m_DDTab;
+	CEditNumber m_DDEdits[COUNT_OF(DDEditIds) - 1];
+	
+	static void RegisterChanged(HWND hDlg, TAB_ID srcTabId, WPARAM wParam);
+
+	static INT_PTR CALLBACK TabProcDefault(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam);
+	static INT_PTR CALLBACK TabProcGPR(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam);
+	static INT_PTR CALLBACK TabProcFPR(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam);
+
+	static void InitRegisterEdit(CWindow& tab, CEditNumber& edit, WORD ctrlId, HFONT font);
+	static void InitRegisterEdits(CWindow& tab, CEditNumber* edits, const DWORD* ctrlIds, HFONT font);
+	static void InitRegisterEdit64(CWindow& tab, CEditReg64& edit, WORD ctrlId, HFONT font);
+	static void InitRegisterEdits64(CWindow& tab, CEditReg64* edits, const DWORD* ctrlIds, HFONT font);
+	static void ZeroRegisterEdit(CEditNumber& edit);
+	static void ZeroRegisterEdits(CEditNumber* edits, const DWORD* ctrlIds);
+	static void ZeroRegisterEdit64(CEditReg64& edit);
+	static void ZeroRegisterEdits64(CEditReg64* edits, const DWORD* ctrlIds);
+
 public:
 	void Attach(HWND hWndNew);
 	CWindow AddTab(char* caption, int dialogId, DLGPROC dlgProc);
 	void ShowTab(int nPage);
 	CRect GetPageRect();
 	void RedrawCurrentTab();
-
 	void RefreshEdits();
-	
 	void SetColorsEnabled(bool bColorsEnabled);
-
-	static INT_PTR CALLBACK TabProcGPR(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam);
-	static INT_PTR CALLBACK TabProcFPR(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam);
-	static INT_PTR CALLBACK TabProcPI(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam);
-	static INT_PTR CALLBACK TabProcCOP0(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam);
-	
-	//LRESULT OnSelChange(NMHDR* lpNMHDR)
-	//
-	//BEGIN_MSG_MAP_EX(CRegisterTabs)
-	//	MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
-	//	//REFLECTED_NOTIFY_CODE_HANDLER_EX(TCN_SELCHANGE, OnSelChange)
-	//	//DEFAULT_REFLECTION_HANDLER()
-	//END_MSG_MAP()
 };

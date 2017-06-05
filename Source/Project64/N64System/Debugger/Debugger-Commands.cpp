@@ -44,7 +44,7 @@ LRESULT	CDebugCommandsView::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARA
 	//m_ptMinTrackSize.x = 580;
 	//m_ptMinTrackSize.y = 495;
 
-	m_CommandListRows = 33;
+	m_CommandListRows = 39;
 	
 	CheckCPUType();
 	
@@ -84,8 +84,6 @@ LRESULT	CDebugCommandsView::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARA
 	// Setup register tabs & inputs
 
 	m_RegisterTabs.Attach(GetDlgItem(IDC_REG_TABS));
-	m_RegisterTabs.SetColorsEnabled(false);
-	m_RegisterTabs.RefreshEdits();
 
 	// Setup breakpoint list
 
@@ -320,16 +318,16 @@ const char* CDebugCommandsView::GetDataAddressNotes(uint32_t vAddr)
 {
 	switch (vAddr)
 	{
-	case 0xA3F00000: return "RDRAM_CONFIG_REG/RDRAM_DEVICE_TYPE_REG)";
-	case 0xA3F00004: return "RDRAM_DEVICE_ID_REG)";
-	case 0xA3F00008: return "RDRAM_DELAY_REG)";
-	case 0xA3F0000C: return "RDRAM_MODE_REG)";
-	case 0xA3F00010: return "RDRAM_REF_INTERVAL_REG)";
-	case 0xA3F00014: return "RDRAM_REF_ROW_REG)";
-	case 0xA3F00018: return "RDRAM_RAS_INTERVAL_REG)";
-	case 0xA3F0001C: return "RDRAM_MIN_INTERVAL_REG)";
-	case 0xA3F00020: return "RDRAM_ADDR_SELECT_REG)";
-	case 0xA3F00024: return "RDRAM_DEVICE_MANUF_REG)";
+	case 0xA3F00000: return "RDRAM_CONFIG_REG/RDRAM_DEVICE_TYPE_REG";
+	case 0xA3F00004: return "RDRAM_DEVICE_ID_REG";
+	case 0xA3F00008: return "RDRAM_DELAY_REG";
+	case 0xA3F0000C: return "RDRAM_MODE_REG";
+	case 0xA3F00010: return "RDRAM_REF_INTERVAL_REG";
+	case 0xA3F00014: return "RDRAM_REF_ROW_REG";
+	case 0xA3F00018: return "RDRAM_RAS_INTERVAL_REG";
+	case 0xA3F0001C: return "RDRAM_MIN_INTERVAL_REG";
+	case 0xA3F00020: return "RDRAM_ADDR_SELECT_REG";
+	case 0xA3F00024: return "RDRAM_DEVICE_MANUF_REG";
 
 	case 0xA4040000: return "SP_MEM_ADDR_REG";
 	case 0xA4040004: return "SP_DRAM_ADDR_REG";
@@ -405,6 +403,26 @@ const char* CDebugCommandsView::GetDataAddressNotes(uint32_t vAddr)
 	case 0xA4800004: return "SI_PIF_ADDR_RD64B_REG";
 	case 0xA4800010: return "SI_PIF_ADDR_WR64B_REG";
 	case 0xA4800018: return "SI_STATUS_REG";
+
+	case 0xA5000500: return "ASIC_DATA";
+	case 0xA5000504: return "ASIC_MISC_REG";
+	case 0xA5000508: return "ASIC_STATUS";
+	case 0xA500050C: return "ASIC_CUR_TK";
+	case 0xA5000510: return "ASIC_BM_STATUS";
+	case 0xA5000514: return "ASIC_ERR_SECTOR";
+	case 0xA5000518: return "ASIC_SEQ_STATUS";
+	case 0xA500051C: return "ASIC_CUR_SECTOR";
+	case 0xA5000520: return "ASIC_HARD_RESET";
+	case 0xA5000524: return "ASIC_C1_S0";
+	case 0xA5000528: return "ASIC_HOST_SECBYTE";
+	case 0xA500052C: return "ASIC_C1_S2";
+	case 0xA5000530: return "ASIC_SEC_BYTE";
+	case 0xA5000534: return "ASIC_C1_S4";
+	case 0xA5000538: return "ASIC_C1_S6";
+	case 0xA500053C: return "ASIC_CUR_ADDR";
+	case 0xA5000540: return "ASIC_ID_REG";
+	case 0xA5000544: return "ASIC_TEST_REG";
+	case 0xA5000548: return "ASIC_TEST_PIN_SEL";
 
 	case 0xB0000004: return "Header: Clock rate";
 	case 0xB0000008: return "Header: Game entry point";
