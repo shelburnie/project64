@@ -23,7 +23,8 @@ CDebugCommandsView* CDebugCommandsView::_this = NULL;
 HHOOK CDebugCommandsView::hWinMessageHook = NULL;
 
 CDebugCommandsView::CDebugCommandsView(CDebuggerUI * debugger) :
-CDebugDialog<CDebugCommandsView>(debugger)
+CDebugDialog<CDebugCommandsView>(debugger),
+CToolTipDialog<CDebugCommandsView>()
 {
 	m_HistoryIndex = -1;
 	m_bIgnoreAddrChange = false;
@@ -40,6 +41,7 @@ CDebugCommandsView::~CDebugCommandsView(void)
 LRESULT	CDebugCommandsView::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
 	DlgResize_Init(false, true);
+	DlgToolTip_Init();
 
 	//m_ptMinTrackSize.x = 580;
 	//m_ptMinTrackSize.y = 495;

@@ -404,6 +404,9 @@
     <ClInclude Include="N64System\Debugger\OpInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="UserInterface\WTLControls\TooltipDialog.h">
+      <Filter>Header Files\User Interface Headers\WTL Controls Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\divider.cur">

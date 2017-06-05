@@ -16,6 +16,8 @@
 #include "Debugger-AddBreakpoint.h"
 #include "Debugger-RegisterTabs.h"
 
+#include <Project64/UserInterface/WTLControls/TooltipDialog.h>
+
 class CCommandList : public CWindowImpl<CCommandList, CListViewCtrl>
 {
 public:
@@ -35,7 +37,7 @@ public:
 	{
 		CListViewCtrl::Attach(hWndNew);
 		ModifyStyle(LVS_OWNERDRAWFIXED, 0, 0);
-		SetExtendedListViewStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER);
+		SetExtendedListViewStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER | LVS_EX_LABELTIP);
 		AddColumn("", COL_ARROWS);
 		AddColumn("Address", COL_ADDRESS);
 		AddColumn("Command", COL_COMMAND);
@@ -85,7 +87,8 @@ public:
 
 class CDebugCommandsView :
 	public CDebugDialog<CDebugCommandsView>,
-	public CDialogResize<CDebugCommandsView>
+	public CDialogResize<CDebugCommandsView>,
+	public CToolTipDialog<CDebugCommandsView>
 {
 	friend class CEditOp;
 
@@ -253,4 +256,16 @@ private:
 		DLGRESIZE_CONTROL(IDC_CMD_LIST, DLSZ_SIZE_X | DLSZ_SIZE_Y)
 		DLGRESIZE_CONTROL(IDC_SCRL_BAR, DLSZ_MOVE_X | DLSZ_SIZE_Y)
 	END_DLGRESIZE_MAP()
+
+	BEGIN_TOOLTIP_MAP()
+		TOOLTIP(IDC_SKIP_BTN, "Skip (F1)")
+		TOOLTIP(IDC_STEP_BTN, "Step (F2)")
+		TOOLTIP(IDC_GO_BTN, "Go (F4)")
+		TOOLTIP(IDC_ADDBP_BTN, "Add breakpoint...")
+		TOOLTIP(IDC_RMBP_BTN, "Remove selected breakpoint")
+		TOOLTIP(IDC_CLEARBP_BTN, "Remove all breakpoints")
+		TOOLTIP(IDC_VIEWPC_BTN, "Jump to program counter")
+		TOOLTIP(IDC_BP_LIST, "Active breakpoints")
+		TOOLTIP(IDC_SYMBOLS_BTN, "Symbols...")
+	END_TOOLTIP_MAP()
 };

@@ -186,6 +186,7 @@
     <ClInclude Include="UserInterface\WTLControls\ModifiedEditBox.h" />
     <ClInclude Include="UserInterface\WTLControls\numberctrl.h" />
     <ClInclude Include="UserInterface\WTLControls\PartialGroupBox.h" />
+    <ClInclude Include="UserInterface\WTLControls\TooltipDialog.h" />
     <ClInclude Include="WTLApp.h" />
   </ItemGroup>
   <ItemGroup>
