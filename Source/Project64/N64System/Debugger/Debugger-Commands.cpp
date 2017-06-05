@@ -457,8 +457,8 @@ const char* CDebugCommandsView::GetCodeAddressNotes(uint32_t vAddr)
 		return NULL;
 	}
 
-	uint32_t gameEntryPoint;
-	g_MMU->LW_VAddr(0xB0000008, gameEntryPoint);
+	uint8_t* rom = g_Rom->GetRomAddress();
+	uint32_t gameEntryPoint = *(uint32_t*)&rom[0x08];
 
 	if (vAddr == gameEntryPoint)
 	{
