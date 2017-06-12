@@ -41,9 +41,9 @@ const _regNums = {
 
 function AddressRange(start, end)
 {
-    this.start = start >>> 0
-    this.end = end >>> 0
-    Object.freeze(this)
+	this.start = start >>> 0
+	this.end = end >>> 0
+	Object.freeze(this)
 }
 
 const ADDR_ANY = new AddressRange(0x00000000, 0x100000000)
@@ -139,10 +139,10 @@ const console = {
 }
 
 const screen = {
-    print: function(x, y, text)
-    {
-        _native.screenPrint(x, y, text)
-    }
+	print: function(x, y, text)
+	{
+		_native.screenPrint(x, y, text)
+	}
 }
 
 const events = (function()
@@ -152,67 +152,67 @@ const events = (function()
 	return {
 		on: function(hook, callback, param, param2, bOnce)
 		{
-		    this._stashCallback(callback)
+			this._stashCallback(callback)
 			return _native.addCallback(hook, callback, param, param2, bOnce)
 		},
 		onexec: function(addr, callback)
 		{
-		    var param = 0;
-		    var param2 = 0;
+			var param = 0;
+			var param2 = 0;
 
-		    if (typeof (addr) == "object")
-		    {
-		        param = addr.start;
-		        param2 = addr.end;
-		    }
-		    else if (typeof (addr) == "number")
-		    {
-		        param = addr;
-		    }
+			if (typeof (addr) == "object")
+			{
+				param = addr.start;
+				param2 = addr.end;
+			}
+			else if (typeof (addr) == "number")
+			{
+				param = addr;
+			}
 
-		    return events.on('exec', callback, param, param2)
+			return events.on('exec', callback, param, param2)
 		},
 		onread: function(addr, callback)
 		{
-		    var param = 0;
-		    var param2 = 0;
+			var param = 0;
+			var param2 = 0;
 
-		    if (typeof (addr) == "object")
-		    {
-		        param = addr.start;
-		        param2 = addr.end;
-		    }
-		    else if (typeof (addr) == "number")
-		    {
-		        param = addr;
-		    }
+			if (typeof (addr) == "object")
+			{
+				param = addr.start;
+				param2 = addr.end;
+			}
+			else if (typeof (addr) == "number")
+			{
+				param = addr;
+			}
 
-		    return events.on('read', callback, param, param2)
+			return events.on('read', callback, param, param2)
 		},
 		onwrite: function(addr, callback)
 		{
-		    var param = 0;
-		    var param2 = 0;
+			var param = 0;
+			var param2 = 0;
 
-		    if (typeof (addr) == "object")
-		    {
-		        param = addr.start;
-		        param2 = addr.end;
-		    }
-		    else if (typeof (addr) == "number")
-		    {
-		        param = addr;
-		    }
+			if (typeof (addr) == "object")
+			{
+				param = addr.start;
+				param2 = addr.end;
+			}
+			else if (typeof (addr) == "number")
+			{
+				param = addr;
+			}
 
-		    return events.on('write', callback, param, param2)
+			return events.on('write', callback, param, param2)
 		},
 		ondraw: function(callback)
 		{
-		    return events.on('draw', callback, 0)
+			return events.on('draw', callback, 0)
 		},
 		remove: function(callbackId)
 		{
-		    _native.removeCallback(callbackId)
+			_native.removeCallback(callbackId)
 		},
 		clear: function(){},
 		_stashCallback: function(callback)
@@ -227,7 +227,7 @@ const events = (function()
 	}
 })();
 
-const gpr = new Proxy({}, // todo dgpr for 64 bit
+const gpr = new Proxy({},
 {
 	get: function(obj, prop)
 	{
@@ -239,29 +239,73 @@ const gpr = new Proxy({}, // todo dgpr for 64 bit
 		{
 			return _native.getGPRVal(_regNums[prop])
 		}
-		if(prop == 'pc')
+		switch(prop)
 		{
-			return _native.getPCVal()
+		    case 'pc': return _native.getPCVal(); break;
+		    case 'hi': return _native.getHIVal(false); break;
+		    case 'lo': return _native.getLOVal(false); break;
 		}
 	},
 	set: function(obj, prop, val)
 	{
 		if (typeof prop == 'number' && prop < 32)
 		{
-			return _native.setGPRVal(prop, val)
+			_native.setGPRVal(prop, false, val)
+			return
 		}
 		if (prop in _regNums)
 		{
-			_native.setGPRVal(_regNums[prop], val)
+			_native.setGPRVal(_regNums[prop], false, val)
+			return
 		}
-		if(prop == 'pc')
+		switch(prop)
 		{
-			_native.setPCVal(val)
+		    case 'pc': _native.setPCVal(val); break;
+		    case 'hi': _native.setHIVal(false, val); break;
+		    case 'lo': _native.setLOVal(false, val); break;
 		}
 	}
 })
 
-const fpr = new Proxy({}, // todo dfpr for 64 bit
+const ugpr = new Proxy({},
+{
+	get: function (obj, prop)
+	{
+		if (typeof prop == 'number' && prop < 32)
+		{
+			return _native.getGPRVal(prop, true)
+		}
+		if (prop in _regNums)
+		{
+			return _native.getGPRVal(_regNums[prop], true)
+		}
+		switch(prop)
+		{
+		    case 'hi': return _native.getHIVal(true); break;
+		    case 'lo': return _native.getLOVal(true); break;
+		}
+	},
+	set: function (obj, prop, val)
+	{
+		if (typeof prop == 'number' && prop < 32)
+		{
+			_native.setGPRVal(prop, true, val)
+			return
+		}
+		if (prop in _regNums)
+		{
+			_native.setGPRVal(_regNums[prop], true, val)
+			return
+		}
+		switch(prop)
+		{
+		    case 'hi': _native.setHIVal(true, val); break;
+		    case 'lo': _native.setLOVal(true, val); break;
+		}
+	}
+})
+
+const fpr = new Proxy({},
 {
 	get: function(obj, prop)
 	{
@@ -278,13 +322,41 @@ const fpr = new Proxy({}, // todo dfpr for 64 bit
 	{
 		if (typeof prop == 'number' && prop < 32)
 		{
-			return _native.setFPRVal(prop, val)
+			_native.setFPRVal(prop, false, val)
+			return
 		}
 		if (prop in _regNums)
 		{
-			_native.setFPRVal(_regNums[prop], val)
+			_native.setFPRVal(_regNums[prop], false, val)
 		}
 	}
+})
+
+const dfpr = new Proxy({},
+{
+    get: function (obj, prop)
+    {
+        if (typeof prop == 'number')
+        {
+            return _native.getFPRVal(prop, true)
+        }
+        if (prop in _regNums)
+        {
+            return _native.getFPRVal(_regNums[prop], true)
+        }
+    },
+    set: function (obj, prop, val)
+    {
+        if (typeof prop == 'number' && prop < 32)
+        {
+            _native.setFPRVal(prop, true, val)
+            return
+        }
+        if (prop in _regNums)
+        {
+            _native.setFPRVal(_regNums[prop], true, val)
+        }
+    }
 })
 
 const rom = {
@@ -343,7 +415,7 @@ const rom = {
 		}
 	}),
 	getblock: function (address, size) {
-	    return _native.getROMBlock(address, size)
+		return _native.getROMBlock(address, size)
 	},
 	getstring: function(address)
 	{

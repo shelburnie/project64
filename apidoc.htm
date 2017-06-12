@@ -101,7 +101,9 @@ span.tag2 {
 		<a href="#alert">alert</a><br>
 		<a href="#screen">screen</a><br>
 		<a href="#gpr">gpr</a><br>
+		<a href="#ugpr">ugpr</a><br>
 		<a href="#fpr">fpr</a><br>
+		<a href="#dfpr">dfpr</a><br>
 		<a href="#Server">Server</a><br>
 		<a href="#Socket">Socket</a><br>
 		<a href="#AddressRange">AddressRange</a><br>
@@ -226,7 +228,7 @@ player.heal()
 	<div class="property">
 		<div class="propertyname">rom.u8|u16|u32|s8|s16|s32|float|double</div>
 		<div class="propertydesc">
-			Arrays for reading values in cartridge ROM. Indexing works in a similar manner to <b>mem</b>'s.
+			Arrays for reading values in cartridge ROM. Indexing works in a similar manner to <a href="#mem">mem</a>'s.
 			<pre class="example">
 var crc1 = rom.u32[0x00000010]
 var crc2 = rom.u32[0x00000014]
@@ -469,8 +471,42 @@ events.onexec(0x802CB1C0, function()
 			Variable representing the CPU's program counter.
 		</div>
 	</div>
+	<div class="property">
+		<div class="propertyname">gpr.hi</div>
+		<div class="propertydesc">
+			Variable representing the lower 32 bits of the HI register.
+		</div>
+	</div>
+	<div class="property">
+		<div class="propertyname">gpr.lo</div>
+		<div class="propertydesc">
+			Variable representing the lower 32 bits of the LO register.
+		</div>
+	</div>
 </div>
 
+<div class="panel" id="ugpr">
+	<div class="classname">ugpr</div>
+	<div class="property">
+		<div class="propertyname">ugpr.r0|at|v0|v1|a0 ...</div>
+		<div class="propertyname">ugpr[0|1|2 ...]</div>
+		<div class="propertydesc">
+			Variables representing the upper 32 bits of each general purpose register.
+		</div>
+	</div>
+	<div class="property">
+		<div class="propertyname">ugpr.hi</div>
+		<div class="propertydesc">
+			Variable representing the upper 32 bits of the HI register.
+		</div>
+	</div>
+	<div class="property">
+		<div class="propertyname">ugpr.lo</div>
+		<div class="propertydesc">
+			Variable representing the upper 32 bits of the LO register.
+		</div>
+	</div>
+</div>
 
 <div class="panel" id="fpr">
 	<div class="classname">fpr</div>
@@ -488,6 +524,17 @@ events.onexec(0x802CB1C0, function()
     }
 })
 </pre>
+		</div>
+	</div>
+</div>
+
+<div class="panel" id="dfpr">
+	<div class="classname">dfpr</div>
+	<div class="property">
+		<div class="propertyname">dfpr.f0|f2|f4|f6 ...</div>
+		<div class="propertyname">dfpr[0|2|4 ...]</div>
+		<div class="propertydesc">
+			Variables representing the 64-bit floating point registers.
 		</div>
 	</div>
 </div>
@@ -575,12 +622,12 @@ server.on('connection', function(socket)
 			The following <b>AddressRange</b> objects are defined globally:
 			<pre>
 <b>ADDR_ANY</b>              0x00000000 : 0x100000000 Any 32-bit address
-                             
+
 <b>ADDR_ANY_KUSEG</b>        0x00000000 : 0x80000000  MIPS user mode TLB mapped segment
 <b>ADDR_ANY_KSEG0</b>        0x80000000 : 0xA0000000  MIPS cached unmapped segment
 <b>ADDR_ANY_KSEG1</b>        0xA0000000 : 0xC0000000  MIPS uncached unmapped segment
 <b>ADDR_ANY_KSEG2</b>        0xC0000000 : 0x100000000 MIPS kernel mode TLB mapped segment
-                             
+
 <b>ADDR_ANY_RDRAM</b>        0x80000000 : 0x80800000 Cached RDRAM
 <b>ADDR_ANY_RDRAM_UNC</b>    0xA0000000 : 0xA0800000 Uncached RDRAM
 

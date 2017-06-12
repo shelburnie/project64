@@ -109,7 +109,7 @@ void CScriptInstance::StartScriptProc()
 	SetState(STATE_STARTED);
 	
 	bool bWasUnpaused = false;
-	
+
 	if (!g_Settings->LoadBool(GameRunning_CPU_Paused) && g_MMU)
 	{
 		// Pause CPU during startup phase
@@ -724,46 +724,169 @@ duk_ret_t CScriptInstance::js_GetPCVal(duk_context* ctx)
 
 duk_ret_t CScriptInstance::js_SetPCVal(duk_context* ctx)
 {
-	uint32_t val = duk_to_uint32(ctx, 1);
+	uint32_t val = duk_to_uint32(ctx, 0);
 	g_Reg->m_PROGRAM_COUNTER = val;
 	duk_pop_n(ctx, 1);
-	duk_push_uint(ctx, val);
+	return 1;
+}
+
+duk_ret_t CScriptInstance::js_GetLOVal(duk_context* ctx)
+{
+	bool bUpper = duk_get_boolean(ctx, 0);
+	duk_pop_n(ctx, 1);
+
+	if (!bUpper)
+	{
+		duk_push_uint(ctx, g_Reg->m_LO.UW[0]);
+	}
+	else
+	{
+		duk_push_uint(ctx, g_Reg->m_LO.UW[1]);
+	}
+	
+	return 1;
+}
+
+duk_ret_t CScriptInstance::js_SetLOVal(duk_context* ctx)
+{
+	bool bUpper = duk_get_boolean(ctx, 0);
+	uint32_t val = duk_to_uint32(ctx, 1);
+
+	duk_pop_n(ctx, 2);
+
+	if (!bUpper)
+	{
+		g_Reg->m_LO.UW[0] = val;
+	}
+	else
+	{
+		g_Reg->m_LO.UW[1] = val;
+	}
+	
+	return 1;
+}
+
+duk_ret_t CScriptInstance::js_GetHIVal(duk_context* ctx)
+{
+	bool bUpper = duk_get_boolean(ctx, 0);
+	duk_pop_n(ctx, 1);
+
+	if (!bUpper)
+	{
+		duk_push_uint(ctx, g_Reg->m_HI.UW[0]);
+	}
+	else
+	{
+		duk_push_uint(ctx, g_Reg->m_HI.UW[1]);
+	}
+	
+	return 1;
+}
+
+duk_ret_t CScriptInstance::js_SetHIVal(duk_context* ctx)
+{
+	bool bUpper = duk_get_boolean(ctx, 0);
+	uint32_t val = duk_to_uint32(ctx, 1);
+	duk_pop_n(ctx, 2);
+
+	if (!bUpper)
+	{
+		g_Reg->m_HI.UW[0] = val;
+	}
+	else
+	{
+		g_Reg->m_HI.UW[1] = val;
+	}
+	
 	return 1;
 }
 
 duk_ret_t CScriptInstance::js_GetGPRVal(duk_context* ctx)
 {
+	int nargs = duk_get_top(ctx);
 	int regnum = duk_to_int(ctx, 0);
-	duk_pop_n(ctx, 1);
-	duk_push_uint(ctx, g_Reg->m_GPR[regnum].UW[0]);
+	bool bUpper = false;
+
+	if (nargs > 1)
+	{
+		bUpper = duk_to_boolean(ctx, 1);
+	}
+
+	duk_pop_n(ctx, nargs);
+
+	if (!bUpper)
+	{
+		duk_push_uint(ctx, g_Reg->m_GPR[regnum].UW[0]);
+	}
+	else
+	{
+		duk_push_uint(ctx, g_Reg->m_GPR[regnum].UW[1]);
+	}
+	
 	return 1;
 }
 
 duk_ret_t CScriptInstance::js_SetGPRVal(duk_context* ctx)
 {
+	int nargs = duk_get_top(ctx);
 	int regnum = duk_to_int(ctx, 0);
-	uint32_t val = duk_to_uint32(ctx, 1);
-	g_Reg->m_GPR[regnum].UW[0] = val;
-	duk_pop_n(ctx, 2);
-	duk_push_uint(ctx, val);
+	bool bUpper = duk_to_boolean(ctx, 1);
+	uint32_t val = duk_to_uint32(ctx, 2);
+
+	if (!bUpper)
+	{
+		g_Reg->m_GPR[regnum].UW[0] = val;
+	}
+	else
+	{
+		g_Reg->m_GPR[regnum].UW[1] = val;
+	}
+	
+	duk_pop_n(ctx, 3);
 	return 1;
 }
 
 duk_ret_t CScriptInstance::js_GetFPRVal(duk_context* ctx)
 {
+	int nargs = duk_get_top(ctx);
 	int regnum = duk_to_int(ctx, 0);
-	duk_pop_n(ctx, 1);
-	duk_push_number(ctx, (duk_double_t)*g_Reg->m_FPR_S[regnum]);
+	bool bDouble = false;
+
+	if (nargs > 1)
+	{
+		bDouble = duk_get_boolean(ctx, 1);
+	}
+	
+	duk_pop_n(ctx, nargs);
+
+	if (!bDouble)
+	{
+		duk_push_number(ctx, (duk_double_t)*g_Reg->m_FPR_S[regnum]);
+	}
+	else
+	{
+		duk_push_number(ctx, (duk_double_t)*g_Reg->m_FPR_D[regnum & 0x1E]);
+	}
 	return 1;
 }
 
 duk_ret_t CScriptInstance::js_SetFPRVal(duk_context* ctx)
 {
+	int nargs = duk_get_top(ctx);
 	int regnum = duk_to_int(ctx, 0);
-	duk_double_t val = duk_to_number(ctx, 1);
-	*g_Reg->m_FPR_S[regnum] = (float)val;
-	duk_pop_n(ctx, 2);
-	duk_push_uint(ctx, val);
+	bool bDouble = duk_to_boolean(ctx, 1);
+	duk_double_t val = duk_to_number(ctx, 2);
+	
+	if (!bDouble)
+	{
+		*g_Reg->m_FPR_S[regnum] = (float)val;
+	}
+	else
+	{
+		*g_Reg->m_FPR_D[regnum & 0x1E] = val;
+	}
+	
+	duk_pop_n(ctx, 3);
 	return 1;
 }
 

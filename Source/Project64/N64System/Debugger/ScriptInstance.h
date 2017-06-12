@@ -132,10 +132,14 @@ private:
 	static duk_ret_t js_RemoveCallback (duk_context*); // (callbackId)
 	static duk_ret_t js_GetPCVal       (duk_context*); // ()
 	static duk_ret_t js_SetPCVal       (duk_context*); // (value)
-	static duk_ret_t js_GetGPRVal      (duk_context*); // (regNum)
-	static duk_ret_t js_SetGPRVal      (duk_context*); // (regNum, value)
-	static duk_ret_t js_GetFPRVal      (duk_context*); // (regNum)
-	static duk_ret_t js_SetFPRVal      (duk_context*); // (regNum, value)
+	static duk_ret_t js_GetHIVal       (duk_context*); // (bUpper)
+	static duk_ret_t js_SetHIVal       (duk_context*); // (bUpper, value)
+	static duk_ret_t js_GetLOVal       (duk_context*); // (bUpper)
+	static duk_ret_t js_SetLOVal       (duk_context*); // (bUpper, value)
+	static duk_ret_t js_GetGPRVal      (duk_context*); // (regNum, bUpper)
+	static duk_ret_t js_SetGPRVal      (duk_context*); // (regNum, bUpper, value)
+	static duk_ret_t js_GetFPRVal      (duk_context*); // (regNum, bDouble)
+	static duk_ret_t js_SetFPRVal      (duk_context*); // (regNum, bDouble, value)
 	static duk_ret_t js_GetROMInt      (duk_context*); // (address, bitwidth, signed)
 	static duk_ret_t js_GetROMFloat    (duk_context*); // (address, bDouble)
 	static duk_ret_t js_GetROMBlock    (duk_context*); // (address, nBytes) ; returns Buffer
@@ -159,8 +163,13 @@ private:
 	{
 		{ "addCallback",    js_AddCallback,    DUK_VARARGS },
 		{ "removeCallback", js_RemoveCallback, DUK_VARARGS },
+
 		{ "setPCVal",       js_SetPCVal,       DUK_VARARGS },
 		{ "getPCVal",       js_GetPCVal,       DUK_VARARGS },
+		{ "setHIVal",       js_SetHIVal,       DUK_VARARGS },
+		{ "getHIVal",       js_GetHIVal,       DUK_VARARGS },
+		{ "setLOVal",       js_SetLOVal,       DUK_VARARGS },
+		{ "getLOVal",       js_GetLOVal,       DUK_VARARGS },
 		{ "setGPRVal",      js_SetGPRVal,      DUK_VARARGS },
 		{ "getGPRVal",      js_GetGPRVal,      DUK_VARARGS },
 		{ "setFPRVal",      js_SetFPRVal,      DUK_VARARGS },

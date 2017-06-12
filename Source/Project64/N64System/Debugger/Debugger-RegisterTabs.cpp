@@ -281,7 +281,7 @@ void CRegisterTabs::RegisterChanged(HWND hDlg, TAB_ID srcTabId, WPARAM wParam)
 		}
 		else if (ctrlId == IDC_LO_EDIT)
 		{
-			g_Reg->m_HI.UDW = value;
+			g_Reg->m_LO.UDW = value;
 		}
 		else
 		{
