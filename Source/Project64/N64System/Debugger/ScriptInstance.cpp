@@ -1255,15 +1255,30 @@ duk_ret_t CScriptInstance::js_MsgBox(duk_context* ctx)
 // Return zero-terminated string from ram
 duk_ret_t CScriptInstance::js_GetRDRAMString(duk_context* ctx)
 {
-	// (address)
+	// (address[, maxLen])
+	int nargs = duk_get_top(ctx);
 	uint32_t address = duk_get_uint(ctx, 0);
+	int maxLen = INT_MAX;
+	
+	if (nargs > 1)
+	{
+		maxLen = duk_get_int(ctx, 1);
+		if (maxLen == 0)
+		{
+			maxLen = INT_MAX;
+		}
+	}
 
 	uint8_t test = 0xFF;
 	int len = 0;
 
 	// determine length of string
-	while (g_MMU->LB_VAddr(address + len, test) && test != 0) // todo protect from ram overrun
+	while (len < maxLen && g_MMU->LB_VAddr(address + len, test) && test != 0) // todo protect from ram overrun
 	{
+		if ((address & 0xFFFFFF) + len >= g_MMU->RdramSize())
+		{
+			break;
+		}
 		len++;
 	}
 
@@ -1276,7 +1291,7 @@ duk_ret_t CScriptInstance::js_GetRDRAMString(duk_context* ctx)
 
 	str[len] = '\0';
 
-	duk_pop(ctx);
+	duk_pop_n(ctx, nargs);
 	duk_push_string(ctx, (char*)str);
 	free(str); // duk creates internal copy
 	return 1;
@@ -1285,12 +1300,38 @@ duk_ret_t CScriptInstance::js_GetRDRAMString(duk_context* ctx)
 // Return zero-terminated string from rom
 duk_ret_t CScriptInstance::js_GetROMString(duk_context* ctx)
 {
-	// (address)
+	// (address[, maxLen])
+	int nargs = duk_get_top(ctx);
 	uint32_t address = duk_get_uint(ctx, 0);
+	int maxLen = INT_MAX;
+
+	if (nargs > 1)
+	{
+		maxLen = duk_get_int(ctx, 1);
+		if (maxLen == 0)
+		{
+			maxLen = INT_MAX;
+		}
+	}
 	
 	char* rom = (char*) g_Rom->GetRomAddress();
+	uint32_t romSize = g_Rom->GetRomSize();
 
-	int len = strlen(&rom[address]);
+	int len = 0;
+
+	while (len < maxLen)
+	{
+		if (address + len >= romSize)
+		{
+			break;
+		}
+		if (rom[address + len] == 0)
+		{
+			break;
+		}
+
+		len++;
+	}
 
 	char* str = (char*) malloc(len + 1);
 

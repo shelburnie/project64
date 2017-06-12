@@ -143,14 +143,14 @@ private:
 	static duk_ret_t js_GetROMInt      (duk_context*); // (address, bitwidth, signed)
 	static duk_ret_t js_GetROMFloat    (duk_context*); // (address, bDouble)
 	static duk_ret_t js_GetROMBlock    (duk_context*); // (address, nBytes) ; returns Buffer
-	static duk_ret_t js_GetROMString   (duk_context*); // fetch zero terminated string from memory
+	static duk_ret_t js_GetROMString   (duk_context*); // (address[, maxLen]) ; fetch zero terminated string from memory
 
 	static duk_ret_t js_GetRDRAMInt    (duk_context*); // (address, bitwidth, signed)
 	static duk_ret_t js_SetRDRAMInt    (duk_context*); // (address, bitwidth, signed, newValue)
 	static duk_ret_t js_GetRDRAMFloat  (duk_context*); // (address, bDouble)
 	static duk_ret_t js_SetRDRAMFloat  (duk_context*); // (address, bDouble, newValue)
 	static duk_ret_t js_GetRDRAMBlock  (duk_context*); // (address, nBytes) ; returns Buffer
-	static duk_ret_t js_GetRDRAMString (duk_context*); // fetch zero terminated string from memory
+	static duk_ret_t js_GetRDRAMString (duk_context*); // (address[, maxLen]) ; fetch zero terminated string from memory
 	static duk_ret_t js_ConsolePrint   (duk_context*);
 	static duk_ret_t js_ConsoleClear   (duk_context*);
 

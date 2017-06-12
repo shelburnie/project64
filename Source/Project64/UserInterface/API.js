@@ -362,64 +362,75 @@ const dfpr = new Proxy({},
 const rom = {
 	u8: new Proxy({},
 	{
-		get: function (obj, prop) {
+	    get: function (obj, prop)
+	    {
 			return _native.getROMInt(prop, 8, false)
 		}
 	}),
 	u16: new Proxy({},
 	{
-		get: function (obj, prop) {
+	    get: function (obj, prop)
+	    {
 			return _native.getROMInt(prop, 16, false)
 		}
 	}),
 	u32: new Proxy({},
 	{
-		get: function (obj, prop) {
+	    get: function (obj, prop)
+	    {
 			return _native.getROMInt(prop, 32, false)
 		}
 	}),
 	s8: new Proxy({},
 	{
-		get: function (obj, prop) {
+	    get: function (obj, prop)
+	    {
 			return _native.getROMInt(prop, 8, true)
 		}
 	}),
 	s16: new Proxy({},
 	{
-		get: function (obj, prop) {
+	    get: function (obj, prop)
+	    {
 			return _native.getROMInt(prop, 16, true)
 		}
 	}),
 	s32: new Proxy({},
 	{
-		get: function (obj, prop) {
+	    get: function (obj, prop)
+	    {
 			return _native.getROMInt(prop, 32, true)
 		}
 	}),
 	'float': new Proxy({},
 	{
-		get: function (obj, prop) {
+	    get: function (obj, prop)
+	    {
 			return _native.getROMFloat(prop)
 		},
-		set: function (obj, prop, val) {
+		set: function (obj, prop, val)
+		{
 			_native.setROMFloat(prop, val)
 		}
 	}),
 	'double': new Proxy({},
 	{
-		get: function (obj, prop) {
+	    get: function (obj, prop)
+	    {
 			return _native.getROMFloat(prop, true)
 		},
-		set: function (obj, prop, val) {
+	    set: function (obj, prop, val)
+	    {
 			_native.setROMFloat(prop, val, true)
 		}
 	}),
-	getblock: function (address, size) {
+	getblock: function (address, size)
+	{
 		return _native.getROMBlock(address, size)
 	},
-	getstring: function(address)
+	getstring: function(address, maxLen)
 	{
-		return _native.getROMString(address)
+		return _native.getROMString(address, maxLen)
 	},
 }
 
@@ -516,9 +527,9 @@ const mem = {
 	{
 		return _native.getRDRAMBlock(address, size)
 	},
-	getstring: function(address)
+	getstring: function(address, maxLen)
 	{
-		return _native.getRDRAMString(address)
+	    return _native.getRDRAMString(address, maxLen)
 	},
 	bindvar: function(obj, baseAddr, name, type)
 	{

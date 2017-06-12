@@ -135,7 +135,7 @@ if(mem.u8[addr_power] &lt; 1)
 		</div>
 	</div>
 	<div class="property">
-		<div class="propertyname">mem.getstring(baseAddr)</div>
+		<div class="propertyname">mem.getstring(baseAddr[, maxLen])</div>
 		<div class="propertydesc">
 			Returns a string from a zero-terminated ASCII string at <span class="snip">baseAddr</span> in virtual memory.
 		</div>
@@ -242,7 +242,7 @@ var crc2 = rom.u32[0x00000014]
 		</div>
 	</div>
 	<div class="property">
-		<div class="propertyname">rom.getstring(baseAddr)</div>
+		<div class="propertyname">rom.getstring(baseAddr[, maxLen])</div>
 		<div class="propertydesc">
 			Returns a string from a zero-terminated ASCII string at <span class="snip">baseAddr</span> in cartridge ROM.
 			<pre class="example">
