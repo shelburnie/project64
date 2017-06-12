@@ -104,6 +104,7 @@ span.tag2 {
 		<a href="#fpr">fpr</a><br>
 		<a href="#Server">Server</a><br>
 		<a href="#Socket">Socket</a><br>
+		<a href="#AddressRange">AddressRange</a><br>
 		<a href="#Number">Number</a><br>
 	</div>
 </div>
@@ -263,12 +264,20 @@ console.log('Internal ROM name: ' + romName)</div>
 		<span class="tag">interpreter mode</span>
 		<div class="propertyname">events.onexec(address, callback)</div>
 		<div class="propertydesc">
-			Adds a CPU execution callback for a virtual address and returns a callback ID.
+			Adds a CPU execution callback for a virtual address or <a href="AddressRange">AddressRange</a> and returns a callback ID.
 			<span class="snip">callback</span> will be invoked at the beginning of a CPU step if the program counter is at <span class="snip">address</span>.
+			<span class="snip">callback</span> receives the program counter address at which the event is fired.
 			<pre class="example">
-var id = events.onexec(0x802CB1C0, function()
+events.onexec(0x802CB1C0, function()
 {
-    console.log('CPU is calling 802CB1C0')
+    console.log('CPU is calling 0x802CB1C0')
+})
+</pre>
+			<pre class="example">
+events.onexec(ADDR_ANY, function(addr))
+{
+    // Log every step!
+    console.log('CPU is executing ' + addr.hex())
 })
 </pre>
 		</div>
@@ -278,12 +287,21 @@ var id = events.onexec(0x802CB1C0, function()
 		<span class="tag">interpreter mode</span>
 		<div class="propertyname">events.onread(address, callback)</div>
 		<div class="propertydesc">
-			Adds a CPU read callback for a virtual address and returns a callback ID.
+			Adds a CPU read callback for a virtual address or <a href="AddressRange">AddressRange</a> and returns a callback ID.
 			<span class="snip">callback</span> will be invoked at the beginning of a CPU step if the current instruction is going to read from <span class="snip">address</span>.
+			<span class="snip">callback</span> receives the virtual address that the CPU is going to read.
 			<pre class="example">
-var id = events.onread(0x8033B1B0, function()
+events.onread(0x8033B1B0, function()
 {
     console.log('CPU is reading 8033B1B0')
+})
+</pre>
+			<pre class="example">
+const addr_range_rom = {start: 0xB0000000, end: 0xB6000000}
+
+events.onread(addr_range_rom, function(addr)
+{
+    console.log('CPU is reading ROM ' + addr)
 })
 </pre>
 		</div>
@@ -293,12 +311,19 @@ var id = events.onread(0x8033B1B0, function()
 		<span class="tag">interpreter mode</span>
 		<div class="propertyname">events.onwrite(address, callback)</div>
 		<div class="propertydesc">
-			Adds a CPU write callback for a virtual address and returns a callback ID.
+			Adds a CPU write callback for a virtual address or <a href="AddressRange">AddressRange</a> and returns a callback ID.
 			<span class="snip">callback</span> will be invoked at the beginning of a CPU step if the current instruction is going to write to <span class="snip">address</span>.
+			<span class="snip">callback</span> receives the virtual address that the CPU is going to write to.
 			<pre class="example">
-var id = events.onwrite(0x8033B1B0, function()
+events.onwrite(0x8033B1B0, function()
 {
     console.log('CPU is modifying 8033B1B0')
+})
+</pre>
+			<pre class="example">
+events.onwrite({0xB0000000, 0x90000000}, function(addr)
+{
+    console.log(gpr.pc.hex() + ': wrote to cartridge ' + addr.hex());
 })
 </pre>
 		</div>
@@ -310,7 +335,7 @@ var id = events.onwrite(0x8033B1B0, function()
 			Adds a callback which will be invoked immediately after Project64 requests a screen update from the graphics plugin.
 			Returns a callback ID.
 			<pre class="example">
-var id = events.ondraw(function()
+events.ondraw(function()
 {
     console.log('Frame drawn')
 })
@@ -541,7 +566,32 @@ server.on('connection', function(socket)
 	</div>
 </div>
 
-<div class="panel" id="number">
+<div class="panel" id="AddressRange">
+<div class="classname">AddressRange</div>
+	<div class="property">
+		<div class="propertyname">new AddressRange(start, end)</div>
+		<div class="propertydesc">
+			Creates an immutable object with <span class="snip">start</span> and <span class="snip">end</span> address properties.<br>
+			The following <b>AddressRange</b> objects are defined globally:
+			<pre>
+<b>ADDR_ANY</b>              0x00000000 : 0x100000000 Any 32-bit address
+                             
+<b>ADDR_ANY_KUSEG</b>        0x00000000 : 0x80000000  MIPS user mode TLB mapped segment
+<b>ADDR_ANY_KSEG0</b>        0x80000000 : 0xA0000000  MIPS cached unmapped segment
+<b>ADDR_ANY_KSEG1</b>        0xA0000000 : 0xC0000000  MIPS uncached unmapped segment
+<b>ADDR_ANY_KSEG2</b>        0xC0000000 : 0x100000000 MIPS kernel mode TLB mapped segment
+                             
+<b>ADDR_ANY_RDRAM</b>        0x80000000 : 0x80800000 Cached RDRAM
+<b>ADDR_ANY_RDRAM_UNC</b>    0xA0000000 : 0xA0800000 Uncached RDRAM
+
+<b>ADDR_ANY_CART_ROM</b>     0x90000000 : 0x96000000 Cached cartridge ROM
+<b>ADDR_ANY_CART_ROM_UNC</b> 0xB0000000 : 0xB6000000 Uncached cartridge ROM
+</pre>
+		</div>
+	</div>
+</div>
+
+<div class="panel" id="Number">
 <div class="classname">Number</div>
 	<div class="property">
 		<div class="propertyname">number.hex([nChars])</div>

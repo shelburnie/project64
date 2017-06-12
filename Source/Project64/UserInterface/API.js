@@ -39,6 +39,23 @@ const _regNums = {
 	f28: 28, f29: 29, f30: 30, f31: 31
 }
 
+function AddressRange(start, end)
+{
+    this.start = start >>> 0
+    this.end = end >>> 0
+    Object.freeze(this)
+}
+
+const ADDR_ANY = new AddressRange(0x00000000, 0x100000000)
+const ADDR_ANY_KUSEG = new AddressRange(0x00000000, 0x80000000)
+const ADDR_ANY_KSEG0 = new AddressRange(0x80000000, 0xA0000000)
+const ADDR_ANY_KSEG1 = new AddressRange(0xA0000000, 0xC0000000)
+const ADDR_ANY_KSEG2 = new AddressRange(0xC0000000, 0x100000000)
+const ADDR_ANY_RDRAM = new AddressRange(0x80000000, 0x80800000)
+const ADDR_ANY_RDRAM_UNC = new AddressRange(0xA0000000, 0xA0800000)
+const ADDR_ANY_CART_ROM = new AddressRange(0x90000000, 0x96000000)
+const ADDR_ANY_CART_ROM_UNC = new AddressRange(0xB0000000, 0xB6000000)
+
 const system = {
 	pause: function()
 	{
@@ -133,22 +150,61 @@ const events = (function()
 	var callbacks = {};
 	var nextCallbackId = 0;
 	return {
-		on: function(hook, callback, tag)
+		on: function(hook, callback, param, param2, bOnce)
 		{
-			this._stashCallback(callback)
-			return _native.addCallback(hook, callback, tag)
+		    this._stashCallback(callback)
+			return _native.addCallback(hook, callback, param, param2, bOnce)
 		},
 		onexec: function(addr, callback)
 		{
-			return events.on('exec', callback, addr)
+		    var param = 0;
+		    var param2 = 0;
+
+		    if (typeof (addr) == "object")
+		    {
+		        param = addr.start;
+		        param2 = addr.end;
+		    }
+		    else if (typeof (addr) == "number")
+		    {
+		        param = addr;
+		    }
+
+		    return events.on('exec', callback, param, param2)
 		},
 		onread: function(addr, callback)
 		{
-		    return events.on('read', callback, addr)
+		    var param = 0;
+		    var param2 = 0;
+
+		    if (typeof (addr) == "object")
+		    {
+		        param = addr.start;
+		        param2 = addr.end;
+		    }
+		    else if (typeof (addr) == "number")
+		    {
+		        param = addr;
+		    }
+
+		    return events.on('read', callback, param, param2)
 		},
 		onwrite: function(addr, callback)
 		{
-		    return events.on('write', callback, addr)
+		    var param = 0;
+		    var param2 = 0;
+
+		    if (typeof (addr) == "object")
+		    {
+		        param = addr.start;
+		        param2 = addr.end;
+		    }
+		    else if (typeof (addr) == "number")
+		    {
+		        param = addr;
+		    }
+
+		    return events.on('write', callback, param, param2)
 		},
 		ondraw: function(callback)
 		{

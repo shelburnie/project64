@@ -386,7 +386,7 @@ bool CDebuggerUI::CPUStepStarted()
 	uint32_t PROGRAM_COUNTER = g_Reg->m_PROGRAM_COUNTER;
 	uint32_t JumpToLocation = R4300iOp::m_JumpToLocation;
 	
-	m_ScriptSystem->HookCPUExec()->InvokeByParam(PROGRAM_COUNTER);
+	m_ScriptSystem->HookCPUExec()->InvokeByParamInRange(PROGRAM_COUNTER);
 	
 	// PC breakpoints
 
@@ -406,7 +406,7 @@ bool CDebuggerUI::CPUStepStarted()
 		
 		if ((op <= R4300i_LWU || (op >= R4300i_LL && op <= R4300i_LD))) // Read instructions
 		{
-			m_ScriptSystem->HookCPURead()->InvokeByParam(memoryAddress);
+			m_ScriptSystem->HookCPURead()->InvokeByParamInRange(memoryAddress);
 			
 			if (m_Breakpoints->RBPExists(memoryAddress))
 			{
@@ -415,7 +415,7 @@ bool CDebuggerUI::CPUStepStarted()
 		}
 		else // Write instructions
 		{
-			m_ScriptSystem->HookCPUWrite()->InvokeByParam(memoryAddress);
+			m_ScriptSystem->HookCPUWrite()->InvokeByParamInRange(memoryAddress);
 
 			if (m_Breakpoints->WBPExists(memoryAddress))
 			{

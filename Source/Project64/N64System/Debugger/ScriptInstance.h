@@ -60,7 +60,7 @@ public:
 
 	void Start(char* path);
 	void ForceStop();
-	void Invoke(void* heapptr);
+	void Invoke(void* heapptr, uint32_t param = 0);
 	INSTANCE_STATE GetState();
 
 	friend class PendingEval;
