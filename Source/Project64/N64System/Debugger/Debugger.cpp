@@ -17,7 +17,7 @@
 
 CPj64Module _Module;
 
-CDebuggerUI::CDebuggerUI () :
+CDebuggerUI::CDebuggerUI() :
     m_MemoryDump(NULL),
     m_MemoryView(NULL),
     m_MemorySearch(NULL),
@@ -32,7 +32,6 @@ CDebuggerUI::CDebuggerUI () :
 	m_StackView(NULL),
 	m_DMALog(NULL)
 {
-	g_Settings->RegisterChangeCB(GameRunning_InReset,this,(CSettings::SettingChangedFunc)GameReset);
 	g_Debugger = this;
 
 	//m_DMALog = new vector<DMALogEntry>;
@@ -44,11 +43,12 @@ CDebuggerUI::CDebuggerUI () :
 	m_DMALog = new CDMALog();
 
 	CSymbols::InitializeCriticalSection();
+    g_Settings->RegisterChangeCB(GameRunning_InReset, this, (CSettings::SettingChangedFunc)GameReset);
 }
 
-CDebuggerUI::~CDebuggerUI (void)
+CDebuggerUI::~CDebuggerUI(void)
 {
-	g_Settings->UnregisterChangeCB(GameRunning_InReset,this,(CSettings::SettingChangedFunc)GameReset);
+    g_Settings->UnregisterChangeCB(GameRunning_InReset, this, (CSettings::SettingChangedFunc)GameReset);
     Debug_Reset();
 	delete m_MemoryView;
 	delete m_CommandsView;
@@ -65,13 +65,13 @@ CDebuggerUI::~CDebuggerUI (void)
 	m_StackTrace->clear();
 }
 
-void CDebuggerUI::GameReset ( CDebuggerUI * _this )
+void CDebuggerUI::GameReset(CDebuggerUI * _this)
 {
 	if (!g_Settings->LoadBool(GameRunning_InReset))
 	{
 		return;
 	}
-	// _this->Debug_Reset();
+	
 	if (_this->m_CommandsView)
 	{
 		_this->m_CommandsView->Reset();
@@ -94,7 +94,7 @@ void CDebuggerUI::GameReset ( CDebuggerUI * _this )
 	}
 }
 
-void CDebuggerUI::Debug_Reset ( void )
+void CDebuggerUI::Debug_Reset(void)
 {
     if (m_MemoryDump)
     {
@@ -174,7 +174,7 @@ void CDebuggerUI::Debug_ShowMemoryDump()
     }
 }
 
-void CDebuggerUI::Debug_ShowMemoryWindow ( void )
+void CDebuggerUI::Debug_ShowMemoryWindow(void)
 {
     if (g_MMU == NULL)
     {
@@ -190,16 +190,16 @@ void CDebuggerUI::Debug_ShowMemoryWindow ( void )
     }
 }
 
-void CDebuggerUI::Debug_ShowMemoryLocation ( uint32_t Address, bool VAddr )
+void CDebuggerUI::Debug_ShowMemoryLocation(uint32_t Address, bool VAddr)
 {
     Debug_ShowMemoryWindow();
     if (m_MemoryView)
     {
-        m_MemoryView->ShowAddress(Address,VAddr);
+        m_MemoryView->ShowAddress(Address, VAddr);
     }
 }
 
-void CDebuggerUI::Debug_ShowTLBWindow (void)
+void CDebuggerUI::Debug_ShowTLBWindow(void)
 {
     if (g_MMU == NULL)
     {

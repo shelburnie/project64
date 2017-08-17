@@ -51,8 +51,6 @@ public enum SettingsID
     Setting_LanguageDirDefault,
     Setting_CurrentLanguage,
     Setting_EnableDisk,
-    Setting_PreAllocSyncMem,
-    Setting_ReducedSyncMem,
 
     //RDB Settings
     Rdb_GoodName,
@@ -97,7 +95,7 @@ public enum SettingsID
     Game_File,
     Game_UniqueSaveDir,
     Game_GameName,
-    Game_GoodName,
+    Cfg_GoodName,
     Game_TempLoaded,
     Game_SystemType,
     Game_EditPlugin_Gfx,
@@ -143,6 +141,7 @@ public enum SettingsID
     Game_CRC_Recalc,
     Game_Transferpak_ROM,
     Game_Transferpak_Sav,
+    Game_LoadSaveAtStart,
 
     // General Game running info
     GameRunning_LoadingInProgress,
@@ -255,7 +254,6 @@ public enum SettingsID
     Plugin_UseHleGfx,
     Plugin_UseHleAudio,
     Plugin_EnableAudio,
-    Plugin_ForceGfxReset,
 
     Logging_GenerateLog,
     Logging_LogRDRamRegisters,

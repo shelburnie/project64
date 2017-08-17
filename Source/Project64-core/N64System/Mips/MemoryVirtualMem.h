@@ -59,7 +59,7 @@ public:
     static void ReserveMemory();
     static void FreeReservedMemory();
 
-    bool   Initialize();
+    bool   Initialize(bool SyncSystem);
     void   Reset(bool EraseMemory);
 
     uint8_t * Rdram();
@@ -182,6 +182,7 @@ private:
     static bool FilterX86Exception(uint32_t MemAddress, X86_CONTEXT & context);
 #endif
 #ifdef __arm__
+    static bool DumpArmExceptionInfo(uint32_t MemAddress, mcontext_t & context);
     static bool FilterArmException(uint32_t MemAddress, mcontext_t & context);
 #endif
 

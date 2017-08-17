@@ -57,8 +57,6 @@ enum SettingID
     Setting_LanguageDirDefault,
     Setting_CurrentLanguage,
     Setting_EnableDisk,
-    Setting_PreAllocSyncMem,
-    Setting_ReducedSyncMem,
 
     //RDB Settings
     Rdb_GoodName,
@@ -97,6 +95,7 @@ enum SettingID
     Rdb_AudioResetOnLoad,
     Rdb_AllowROMWrites,
     Rdb_CRC_Recalc,
+    Rdb_OverClockModifier,
 
     //Individual Game Settings
     Game_IniKey,
@@ -149,6 +148,8 @@ enum SettingID
     Game_CRC_Recalc,
     Game_Transferpak_ROM,
     Game_Transferpak_Sav,
+    Game_LoadSaveAtStart,
+    Game_OverClockModifier,
 
     // General Game running info
     GameRunning_LoadingInProgress,
@@ -261,7 +262,6 @@ enum SettingID
     Plugin_UseHleGfx,
     Plugin_UseHleAudio,
     Plugin_EnableAudio,
-    Plugin_ForceGfxReset,
 
     Logging_GenerateLog,
     Logging_LogRDRamRegisters,

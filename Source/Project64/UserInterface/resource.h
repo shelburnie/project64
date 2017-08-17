@@ -275,11 +275,13 @@
 #define IDC_DIR_FRAME1                  1101
 #define IDC_ROM_FASTSP                  1101
 #define IDC_INFO                        1101
+#define IDC_OVER_CLOCK_MODIFIER_TEXT    1101
 #define IDC_AUDIO_SIGNAL                1102
 #define IDC_DIR_TEXTURE_FRAME           1102
 #define IDC_ENTER_CODE                  1102
 #define IDC_DESCRIPTION                 1102
 #define IDC_DIR_FRAME3                  1103
+#define IDC_OVER_CLOCK_MODIFIER         1103
 #define IDC_DIR_FRAME4                  1104
 #define IDC_DIR_FRAME5                  1105
 #define IDC_MAXROMS_TXT                 1111

@@ -62,8 +62,8 @@ uint32_t swap32by8(uint32_t word)
         __builtin_bswap32(word)
 #else
         (word & 0x000000FFul) << 24
-        | (word & 0x0000FF00ul) <<  8
-        | (word & 0x00FF0000ul) >>  8
+        | (word & 0x0000FF00ul) << 8
+        | (word & 0x00FF0000ul) >> 8
         | (word & 0xFF000000ul) >> 24
 #endif
         ;
@@ -108,10 +108,7 @@ void CMipsMemoryVM::Reset(bool /*EraseMemory*/)
 void CMipsMemoryVM::ReserveMemory()
 {
     m_Reserve1 = (uint8_t *)AllocateAddressSpace(0x20000000, (LPVOID)0x10000000);
-    if (g_Settings->LoadBool(Debugger_Enabled))
-    {
-        m_Reserve2 = (uint8_t *)AllocateAddressSpace(0x20000000);
-    }
+    m_Reserve2 = (uint8_t *)AllocateAddressSpace(0x04002000);
 }
 
 void CMipsMemoryVM::FreeReservedMemory()
@@ -128,18 +125,18 @@ void CMipsMemoryVM::FreeReservedMemory()
     }
 }
 
-bool CMipsMemoryVM::Initialize()
+bool CMipsMemoryVM::Initialize(bool SyncSystem)
 {
     if (m_RDRAM != NULL)
     {
         return true;
     }
 
-    if (m_Reserve1)
+    if (!SyncSystem && m_RDRAM == NULL && m_Reserve1 != NULL)
     {
         m_RDRAM = m_Reserve1; m_Reserve1 = NULL;
     }
-    if (m_RDRAM == NULL && m_Reserve2)
+    if (SyncSystem && m_RDRAM == NULL && m_Reserve2 != NULL)
     {
         m_RDRAM = m_Reserve2; m_Reserve2 = NULL;
     }
@@ -640,7 +637,7 @@ bool CMipsMemoryVM::LB_NonMemory(uint32_t PAddr, uint32_t* Value, bool /*SignExt
     //		break;
     //	}
     return true;
-}
+        }
 
 bool CMipsMemoryVM::LH_NonMemory(uint32_t PAddr, uint32_t* Value, bool/* SignExtend*/)
 {
@@ -669,12 +666,12 @@ bool CMipsMemoryVM::LW_NonMemory(uint32_t PAddr, uint32_t* Value)
     if (PAddr >= CFBStart && PAddr < CFBEnd)
     {
         uint32_t OldProtect;
-        VirtualProtect(m_RDRAM+(PAddr & ~0xFFF),0xFFC,PAGE_READONLY, &OldProtect);
+        VirtualProtect(m_RDRAM + (PAddr & ~0xFFF), 0xFFC, PAGE_READONLY, &OldProtect);
         if (FrameBufferRead)
         {
             FrameBufferRead(PAddr & ~0xFFF);
         }
-        *Value = *(uint32_t *)(m_RDRAM+PAddr);
+        *Value = *(uint32_t *)(m_RDRAM + PAddr);
         return true;
     }
 #endif
@@ -713,7 +710,7 @@ bool CMipsMemoryVM::LW_NonMemory(uint32_t PAddr, uint32_t* Value)
     }
     *Value = m_MemLookupValue.UW[0];
     return true;
-}
+    }
 
 bool CMipsMemoryVM::SB_NonMemory(uint32_t PAddr, uint8_t Value)
 {
@@ -815,7 +812,7 @@ bool CMipsMemoryVM::SW_NonMemory(uint32_t PAddr, uint32_t Value)
         {
             return false;
         }
-    }
+            }
 
     switch (PAddr & 0xFFF00000)
     {
@@ -874,7 +871,7 @@ bool CMipsMemoryVM::SW_NonMemory(uint32_t PAddr, uint32_t Value)
     }
 
     return true;
-}
+        }
 
 void CMipsMemoryVM::UpdateHalfLine()
 {

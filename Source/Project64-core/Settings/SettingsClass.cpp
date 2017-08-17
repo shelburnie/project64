@@ -37,7 +37,7 @@
 CSettings * g_Settings = NULL;
 
 CSettings::CSettings() :
-m_NextAutoSettingId(0x200000)
+    m_NextAutoSettingId(0x200000)
 {
 }
 
@@ -123,8 +123,6 @@ void CSettings::AddHowToHandleSetting(const char * BaseDirectory)
 #endif
     AddHandler(Setting_CurrentLanguage, new CSettingTypeApplication("", "Current Language", ""));
     AddHandler(Setting_EnableDisk, new CSettingTypeTempBool(false));
-    AddHandler(Setting_PreAllocSyncMem, new CSettingTypeApplication("", "PreAllocSyncMem", true));
-    AddHandler(Setting_ReducedSyncMem, new CSettingTypeApplication("", "ReducedSyncMem", false));
     AddHandler(Setting_LanguageDirDefault, new CSettingTypeRelativePath("Lang", ""));
     AddHandler(Setting_LanguageDir, new CSettingTypeApplicationPath("Lang Directory", "Directory", Setting_LanguageDirDefault));
 
@@ -168,6 +166,7 @@ void CSettings::AddHowToHandleSetting(const char * BaseDirectory)
     AddHandler(Rdb_AudioResetOnLoad, new CSettingTypeRDBYesNo("AudioResetOnLoad", false));
     AddHandler(Rdb_AllowROMWrites, new CSettingTypeRDBYesNo("AllowROMWrites", false));
     AddHandler(Rdb_CRC_Recalc, new CSettingTypeRDBYesNo("CRC-Recalc", false));
+    AddHandler(Rdb_OverClockModifier, new CSettingTypeRomDatabase("OverClockModifier", 1));
 
     AddHandler(Game_IniKey, new CSettingTypeTempString(""));
     AddHandler(Game_File, new CSettingTypeTempString(""));
@@ -223,6 +222,8 @@ void CSettings::AddHowToHandleSetting(const char * BaseDirectory)
     AddHandler(Game_CRC_Recalc, new CSettingTypeGame("CRC-Recalc", Rdb_CRC_Recalc));
     AddHandler(Game_Transferpak_ROM, new CSettingTypeGame("Tpak-ROM-dir", Default_None));
     AddHandler(Game_Transferpak_Sav, new CSettingTypeGame("Tpak-Sav-dir", Default_None));
+    AddHandler(Game_LoadSaveAtStart, new CSettingTypeTempBool(false));
+    AddHandler(Game_OverClockModifier, new CSettingTypeGame("OverClockModifier", Rdb_OverClockModifier));
 
     //User Interface
     AddHandler(UserInterface_ShowCPUPer, new CSettingTypeApplication("", "Display CPU Usage", (uint32_t)false));
@@ -347,7 +348,7 @@ void CSettings::AddHowToHandleSetting(const char * BaseDirectory)
     AddHandler(Plugin_CONT_Current, new CSettingTypeApplication("Plugin", "Controller Dll", "Input\\PJ64_NRage.dll"));
 #else
     AddHandler(Plugin_RSP_Current, new CSettingTypeApplication("Plugin", "RSP Dll", "libProject64-rsp-hle.so"));
-    AddHandler(Plugin_GFX_Current, new CSettingTypeApplication("Plugin", "Graphics Dll", "libProject64-gfx-glide64.so"));
+    AddHandler(Plugin_GFX_Current, new CSettingTypeApplication("Plugin", "Graphics Dll", "libProject64-gfx.so"));
     AddHandler(Plugin_AUDIO_Current, new CSettingTypeApplication("Plugin", "Audio Dll", "libProject64-audio-android.so"));
     AddHandler(Plugin_CONT_Current, new CSettingTypeApplication("Plugin", "Controller Dll", "libProject64-input-android.so"));
 #endif
@@ -359,11 +360,7 @@ void CSettings::AddHowToHandleSetting(const char * BaseDirectory)
     AddHandler(Plugin_UseHleGfx, new CSettingTypeApplication("RSP", "HLE GFX", true));
     AddHandler(Plugin_UseHleAudio, new CSettingTypeApplication("RSP", "HLE Audio", false));
     AddHandler(Plugin_EnableAudio, new CSettingTypeApplication("Audio", "Enable Audio", true));
-#ifdef ANDROID
-    AddHandler(Plugin_ForceGfxReset, new CSettingTypeApplication("Plugin", "Force Gfx Reset", true));
-#else
-    AddHandler(Plugin_ForceGfxReset, new CSettingTypeApplication("Plugin", "Force Gfx Reset", false));
-#endif
+
     //Logging
     AddHandler(Logging_GenerateLog, new CSettingTypeApplication("Logging", "Generate Log Files", false));
     AddHandler(Logging_LogRDRamRegisters, new CSettingTypeApplication("Logging", "Log RDRam Registers", false));
