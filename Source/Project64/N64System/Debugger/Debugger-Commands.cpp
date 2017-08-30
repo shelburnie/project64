@@ -136,6 +136,7 @@ LRESULT	CDebugCommandsView::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARA
 
 LRESULT CDebugCommandsView::OnDestroy(void)
 {
+	UnhookWindowsHookEx(hWinMessageHook);
 	return 0;
 }
 
@@ -202,11 +203,11 @@ LRESULT	CDebugCommandsView::OnOpKeyDown(UINT uMsg, WPARAM wParam, LPARAM lParam,
 		int textLen = m_OpEdit.GetWindowTextLengthA();
 		char text[256];
 		m_OpEdit.GetWindowTextA(text, 255);
-		m_OpEdit.SetWindowTextA("");
 		uint32_t op;
 		bool bValid = CAssembler::AssembleLine(text, &op, m_SelectedAddress);
 		if (bValid)
 		{
+			m_OpEdit.SetWindowTextA("");
 			EditOp(m_SelectedAddress, op);
 			m_SelectedAddress += 4;
 			BeginOpEdit(m_SelectedAddress);
@@ -1068,6 +1069,7 @@ void CDebugCommandsView::CPUSkip()
 void CDebugCommandsView::CPUStepInto()
 {
 	m_Debugger->Debug_RefreshStackWindow();
+	m_Debugger->Debug_RefreshStackTraceWindow();
 	m_Breakpoints->KeepDebugging();
 	m_Breakpoints->Resume();
 }
@@ -1075,6 +1077,7 @@ void CDebugCommandsView::CPUStepInto()
 void CDebugCommandsView::CPUResume()
 {
 	m_Debugger->Debug_RefreshStackWindow();
+	m_Debugger->Debug_RefreshStackTraceWindow();
 	m_Breakpoints->StopDebugging();
 	m_Breakpoints->Resume();
 	m_RegisterTabs.SetColorsEnabled(false);

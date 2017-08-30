@@ -45,12 +45,15 @@ CMipsMemoryVM::CMipsMemoryVM(bool SavesReadOnly) :
     m_HalfLineCheck(false),
     m_FieldSerration(0),
     m_TLB_ReadMap(NULL),
-    m_TLB_WriteMap(NULL)
+    m_TLB_WriteMap(NULL),
+    m_RDRAM(NULL),
+    m_DMEM(NULL),
+    m_IMEM(NULL),
+    m_DDRomMapped(false),
+    m_DDRom(NULL),
+    m_DDRomSize(0)
 {
     g_Settings->RegisterChangeCB(Game_RDRamSize, this, (CSettings::SettingChangedFunc)RdramChanged);
-    m_RDRAM = NULL;
-    m_DMEM = NULL;
-    m_IMEM = NULL;
 }
 
 uint32_t swap32by8(uint32_t word)
@@ -107,7 +110,7 @@ void CMipsMemoryVM::Reset(bool /*EraseMemory*/)
 
 void CMipsMemoryVM::ReserveMemory()
 {
-    m_Reserve1 = (uint8_t *)AllocateAddressSpace(0x20000000, (LPVOID)0x10000000);
+    m_Reserve1 = (uint8_t *)AllocateAddressSpace(0x20000000, (void *)g_Settings->LoadDword(Setting_FixedRdramAddress));
     m_Reserve2 = (uint8_t *)AllocateAddressSpace(0x04002000);
 }
 
@@ -134,11 +137,13 @@ bool CMipsMemoryVM::Initialize(bool SyncSystem)
 
     if (!SyncSystem && m_RDRAM == NULL && m_Reserve1 != NULL)
     {
-        m_RDRAM = m_Reserve1; m_Reserve1 = NULL;
+        m_RDRAM = m_Reserve1;
+        m_Reserve1 = NULL;
     }
     if (SyncSystem && m_RDRAM == NULL && m_Reserve2 != NULL)
     {
-        m_RDRAM = m_Reserve2; m_Reserve2 = NULL;
+        m_RDRAM = m_Reserve2;
+        m_Reserve2 = NULL;
     }
     if (m_RDRAM == NULL)
     {
@@ -637,7 +642,7 @@ bool CMipsMemoryVM::LB_NonMemory(uint32_t PAddr, uint32_t* Value, bool /*SignExt
     //		break;
     //	}
     return true;
-        }
+}
 
 bool CMipsMemoryVM::LH_NonMemory(uint32_t PAddr, uint32_t* Value, bool/* SignExtend*/)
 {
@@ -700,17 +705,13 @@ bool CMipsMemoryVM::LW_NonMemory(uint32_t PAddr, uint32_t* Value)
         case 0x1FC00000: Load32PifRam(); break;
         case 0x1FF00000: Load32CartridgeDomain1Address3(); break;
         default:
-            if (bHaveDebugger())
-            {
-                g_Notify->BreakPoint(__FILE__, __LINE__);
-            }
             m_MemLookupValue.UW[0] = PAddr & 0xFFFF;
             m_MemLookupValue.UW[0] = (m_MemLookupValue.UW[0] << 16) | m_MemLookupValue.UW[0];
         }
     }
     *Value = m_MemLookupValue.UW[0];
     return true;
-    }
+}
 
 bool CMipsMemoryVM::SB_NonMemory(uint32_t PAddr, uint8_t Value)
 {
@@ -812,7 +813,7 @@ bool CMipsMemoryVM::SW_NonMemory(uint32_t PAddr, uint32_t Value)
         {
             return false;
         }
-            }
+    }
 
     switch (PAddr & 0xFFF00000)
     {
@@ -871,7 +872,7 @@ bool CMipsMemoryVM::SW_NonMemory(uint32_t PAddr, uint32_t Value)
     }
 
     return true;
-        }
+}
 
 void CMipsMemoryVM::UpdateHalfLine()
 {

@@ -95,7 +95,7 @@ static void DrawRE2Video(FB_TO_SCREEN_INFO & fb_info, float scale)
     float lr_x = g_scr_res_x - 1.0f;
     float lr_u = (fb_info.width - 1)*scale;
     float lr_v = (fb_info.height - 1)*scale;
-    VERTEX v[4] = {
+    gfxVERTEX v[4] = {
         { ul_x, ul_y, 1, 1, 0.5f, 0.5f, 0.5f, 0.5f, { 0.5f, 0.5f, 0.5f, 0.5f } },
         { lr_x, ul_y, 1, 1, lr_u, 0.5f, lr_u, 0.5f, { lr_u, 0.5f, lr_u, 0.5f } },
         { ul_x, lr_y, 1, 1, 0.5f, lr_v, 0.5f, lr_v, { 0.5f, lr_v, 0.5f, lr_v } },
@@ -248,7 +248,7 @@ static void DrawFrameBufferToScreen256(FB_TO_SCREEN_INFO & fb_info)
             float lr_u = (float)(cur_width - 1);
             float lr_v = (float)(cur_height - 1);
             // Make the vertices
-            VERTEX v[4] = {
+            gfxVERTEX v[4] = {
                 { ul_x, ul_y, 1, 1, 0.5f, 0.5f, 0.5f, 0.5f, { 0.5f, 0.5f, 0.5f, 0.5f } },
                 { lr_x, ul_y, 1, 1, lr_u, 0.5f, lr_u, 0.5f, { lr_u, 0.5f, lr_u, 0.5f } },
                 { ul_x, lr_y, 1, 1, 0.5f, lr_v, 0.5f, lr_v, { 0.5f, lr_v, 0.5f, lr_v } },
@@ -266,7 +266,7 @@ bool DrawFrameBufferToScreen(FB_TO_SCREEN_INFO & fb_info)
         return false;
     uint32_t width = fb_info.lr_x - fb_info.ul_x + 1;
     uint32_t height = fb_info.lr_y - fb_info.ul_y + 1;
-    uint32_t max_size = minval(voodoo.max_tex_size, 512);
+    uint32_t max_size = 512;
     if (width > (uint32_t)max_size || height > (uint32_t)max_size)
     {
         DrawFrameBufferToScreen256(fb_info);
@@ -368,7 +368,7 @@ bool DrawFrameBufferToScreen(FB_TO_SCREEN_INFO & fb_info)
         float lr_u = (width - 1)*scale;
         float lr_v = (height - 1)*scale;
         // Make the vertices
-        VERTEX v[4] = {
+        gfxVERTEX v[4] = {
             { ul_x, ul_y, 1, 1, 0.5f, 0.5f, 0.5f, 0.5f, { 0.5f, 0.5f, 0.5f, 0.5f } },
             { lr_x, ul_y, 1, 1, lr_u, 0.5f, lr_u, 0.5f, { lr_u, 0.5f, lr_u, 0.5f } },
             { ul_x, lr_y, 1, 1, 0.5f, lr_v, 0.5f, lr_v, { 0.5f, lr_v, 0.5f, lr_v } },
@@ -440,7 +440,7 @@ static void DrawDepthBufferToScreen256(FB_TO_SCREEN_INFO & fb_info)
             float lr_u = (float)(cur_width - 1);
             float lr_v = (float)(cur_height - 1);
             // Make the vertices
-            VERTEX v[4] = {
+            gfxVERTEX v[4] = {
                 { ul_x, ul_y, 1, 1, 0.5f, 0.5f, 0.5f, 0.5f, { 0.5f, 0.5f, 0.5f, 0.5f } },
                 { lr_x, ul_y, 1, 1, lr_u, 0.5f, lr_u, 0.5f, { lr_u, 0.5f, lr_u, 0.5f } },
                 { ul_x, lr_y, 1, 1, 0.5f, lr_v, 0.5f, lr_v, { 0.5f, lr_v, 0.5f, lr_v } },
@@ -509,7 +509,7 @@ static void DrawHiresDepthBufferToScreen(FB_TO_SCREEN_INFO & fb_info)
     float lr_u = (float)rdp.scissor.lr_x * scale;
     float lr_v = (float)rdp.scissor.lr_y * scale;
     // Make the vertices
-    VERTEX v[4] = {
+    gfxVERTEX v[4] = {
         { ul_x, ul_y, 1, 1, ul_u, ul_v, ul_u, ul_v, { ul_u, ul_v, ul_u, ul_v } },
         { lr_x, ul_y, 1, 1, lr_u, ul_v, lr_u, ul_v, { lr_u, ul_v, lr_u, ul_v } },
         { ul_x, lr_y, 1, 1, ul_u, lr_v, ul_u, lr_v, { ul_u, lr_v, ul_u, lr_v } },
@@ -525,14 +525,9 @@ void DrawDepthBufferToScreen(FB_TO_SCREEN_INFO & fb_info)
 {
     uint32_t width = fb_info.lr_x - fb_info.ul_x + 1;
     uint32_t height = fb_info.lr_y - fb_info.ul_y + 1;
-    if (width > (uint32_t)voodoo.max_tex_size || height > (uint32_t)voodoo.max_tex_size || width > 512)
+    if (width > (uint32_t)2048 || height > (uint32_t)2048 || width > 512)
     {
         DrawDepthBufferToScreen256(fb_info);
-        return;
-    }
-    if (g_settings->fb_hwfbe_enabled() && !evoodoo)
-    {
-        DrawHiresDepthBufferToScreen(fb_info);
         return;
     }
     WriteTrace(TraceRDP, TraceDebug, "DrawDepthBufferToScreen. ul_x=%d, ul_y=%d, lr_x=%d, lr_y=%d, size=%d, addr=%08lx", fb_info.ul_x, fb_info.ul_y, fb_info.lr_x, fb_info.lr_y, fb_info.size, fb_info.addr);
@@ -594,7 +589,7 @@ void DrawDepthBufferToScreen(FB_TO_SCREEN_INFO & fb_info)
     float lr_v = (height - 1)*scale;
     float zero = scale*0.5f;
     // Make the vertices
-    VERTEX v[4] = {
+    gfxVERTEX v[4] = {
         { ul_x, ul_y, 1, 1, zero, zero, zero, zero, { zero, zero, zero, zero } },
         { lr_x, ul_y, 1, 1, lr_u, zero, lr_u, zero, { lr_u, zero, lr_u, zero } },
         { ul_x, lr_y, 1, 1, zero, lr_v, zero, lr_v, { zero, lr_v, zero, lr_v } },

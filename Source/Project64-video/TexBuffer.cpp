@@ -35,7 +35,7 @@ static TBUFF_COLOR_IMAGE * AllocateTextureBuffer(COLOR_IMAGE & cimage)
     //  texbuf.scr_height = texbuf.height * rdp.scale_y;
 
     uint16_t max_size = maxval((uint16_t)texbuf.scr_width, (uint16_t)texbuf.scr_height);
-    if (max_size > voodoo.max_tex_size) //texture size is too large
+    if (max_size > 2048) //texture size is too large
         return 0;
     uint32_t tex_size;
     //calculate LOD
@@ -419,7 +419,7 @@ int CloseTextureBuffer(int draw)
     WriteTrace(TraceRDP, TraceDebug, "lr_x: %f, lr_y: %f, lr_u: %f, lr_v: %f", lr_x, lr_y, lr_u, lr_v);
 
     // Make the vertices
-    VERTEX v[4] = {
+    gfxVERTEX v[4] = {
         { ul_x, ul_y, 1, 1, zero, zero, zero, zero, { zero, zero, zero, zero } },
         { lr_x, ul_y, 1, 1, lr_u, zero, lr_u, zero, { lr_u, zero, lr_u, zero } },
         { ul_x, lr_y, 1, 1, zero, lr_v, zero, lr_v, { zero, lr_v, zero, lr_v } },
@@ -474,7 +474,7 @@ int CopyTextureBuffer(COLOR_IMAGE & fb_from, COLOR_IMAGE & fb_to)
     WriteTrace(TraceRDP, TraceDebug, "lr_x: %f, lr_y: %f", lr_x, lr_y);
 
     // Make the vertices
-    VERTEX v[4] = {
+    gfxVERTEX v[4] = {
         { ul_x, ul_y, 1, 1, zero, zero, zero, zero, { zero, zero, zero, zero } },
         { lr_x, ul_y, 1, 1, lr_u, zero, lr_u, zero, { lr_u, zero, lr_u, zero } },
         { ul_x, lr_y, 1, 1, zero, lr_v, zero, lr_v, { zero, lr_v, zero, lr_v } },
@@ -530,7 +530,7 @@ int CopyDepthBuffer()
     WriteTrace(TraceRDP, TraceDebug, "lr_x: %f, lr_y: %f", lr_x, lr_y);
 
     // Make the vertices
-    VERTEX v[4] = {
+    gfxVERTEX v[4] = {
         { ul_x, ul_y, 1, 1, zero, zero, zero, zero, { zero, zero, zero, zero } },
         { lr_x, ul_y, 1, 1, lr_u, zero, lr_u, zero, { lr_u, zero, lr_u, zero } },
         { ul_x, lr_y, 1, 1, zero, lr_v, zero, lr_v, { zero, lr_v, zero, lr_v } },
@@ -585,7 +585,7 @@ int SwapTextureBuffer()
     float lr_v = rdp.tbuff_tex->lr_v;
 
     // Make the vertices
-    VERTEX v[4] = {
+    gfxVERTEX v[4] = {
         { ul_x, ul_y, 1, 1, zero, zero, zero, zero, { zero, zero, zero, zero } },
         { lr_x, ul_y, 1, 1, lr_u, zero, lr_u, zero, { lr_u, zero, lr_u, zero } },
         { ul_x, lr_y, 1, 1, zero, lr_v, zero, lr_v, { zero, lr_v, zero, lr_v } },

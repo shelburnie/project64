@@ -53,7 +53,6 @@ int GfxInitDone = FALSE;
 bool g_romopen = false;
 int exception = FALSE;
 
-int evoodoo = 0;
 int ev_fullscreen = 0;
 
 extern int g_viewport_offset;
@@ -71,7 +70,7 @@ CRDP rdp;
 
 CSettings * g_settings = NULL;
 
-VOODOO voodoo = { 0, 0, 0, 0,
+VOODOO voodoo = { 0, 0, 0,
 0, 0, 0, 0,
 0, 0, 0, 0
 };
@@ -88,7 +87,6 @@ bool g_capture_screen = false;
 std::string g_capture_path;
 
 #ifdef _WIN32
-HWND g_hwnd_win = NULL;
 static RECT g_windowedRect = { 0 };
 static HMENU g_windowedMenu = 0;
 static unsigned long g_windowedExStyle, g_windowedStyle;
@@ -221,14 +219,7 @@ int GetTexAddrNonUMA(int tmu, int texsize)
 void guLoadTextures()
 {
     int tbuf_size = 0;
-    if (voodoo.max_tex_size <= 256)
-    {
-        gfxTextureBufferExt(GFX_TMU1, voodoo.tex_min_addr[GFX_TMU1], GFX_LOD_LOG2_256, GFX_LOD_LOG2_256,
-            GFX_ASPECT_LOG2_1x1, GFX_TEXFMT_RGB_565, GFX_MIPMAPLEVELMASK_BOTH);
-        tbuf_size = 8 * gfxTexCalcMemRequired(GFX_LOD_LOG2_256, GFX_LOD_LOG2_256,
-            GFX_ASPECT_LOG2_1x1, GFX_TEXFMT_RGB_565);
-    }
-    else if (g_scr_res_x <= 1024)
+    if (g_scr_res_x <= 1024)
     {
         gfxTextureBufferExt(GFX_TMU0, voodoo.tex_min_addr[GFX_TMU0], GFX_LOD_LOG2_1024, GFX_LOD_LOG2_1024,
             GFX_ASPECT_LOG2_1x1, GFX_TEXFMT_RGB_565, GFX_MIPMAPLEVELMASK_BOTH);
@@ -364,12 +355,6 @@ void DisplayLoadProgress(const wchar_t *format, ...)
 #ifdef _WIN32
 void SetWindowDisplaySize(HWND hWnd)
 {
-    if (hWnd == NULL)
-    {
-        hWnd = GetActiveWindow();
-    }
-    g_hwnd_win = (HWND)hWnd;
-
     if (ev_fullscreen)
     {
         ZeroMemory(&g_windowedRect, sizeof(RECT));
@@ -430,10 +415,10 @@ void ExitFullScreen(void)
     if (g_fullscreen)
     {
         ChangeDisplaySettings(NULL, 0);
-        SetWindowPos(g_hwnd_win, NULL, g_windowedRect.left, g_windowedRect.top, 0, 0, SWP_NOZORDER | SWP_NOSIZE);
-        SetWindowLong(g_hwnd_win, GWL_STYLE, g_windowedStyle);
-        SetWindowLong(g_hwnd_win, GWL_EXSTYLE, g_windowedExStyle);
-        if (g_windowedMenu) SetMenu(g_hwnd_win, g_windowedMenu);
+        SetWindowPos((HWND)gfx.hWnd, NULL, g_windowedRect.left, g_windowedRect.top, 0, 0, SWP_NOZORDER | SWP_NOSIZE);
+        SetWindowLong((HWND)gfx.hWnd, GWL_STYLE, g_windowedStyle);
+        SetWindowLong((HWND)gfx.hWnd, GWL_EXSTYLE, g_windowedExStyle);
+        if (g_windowedMenu) SetMenu((HWND)gfx.hWnd, g_windowedMenu);
         g_fullscreen = false;
     }
 }
@@ -451,24 +436,6 @@ int InitGfx()
 
     WriteTrace(TraceGlide64, TraceDebug, "-");
 
-    // Check which SST we are using and initialize stuff
-    // Hiroshi Morii <koolsmoky@users.sourceforge.net>
-    enum {
-        GR_SSTTYPE_VOODOO = 0,
-        GR_SSTTYPE_SST96 = 1,
-        GR_SSTTYPE_AT3D = 2,
-        GR_SSTTYPE_Voodoo2 = 3,
-        GR_SSTTYPE_Banshee = 4,
-        GR_SSTTYPE_Voodoo3 = 5,
-        GR_SSTTYPE_Voodoo4 = 6,
-        GR_SSTTYPE_Voodoo5 = 7
-    };
-    unsigned int SST_type = GR_SSTTYPE_Voodoo5;
-    // 2Mb Texture boundary
-    voodoo.has_2mb_tex_boundary = (SST_type < GR_SSTTYPE_Banshee) && !evoodoo;
-    // we get better texture cache hits with UMA on
-    WriteTrace(TraceGlide64, TraceDebug, "Using TEXUMA extension");
-
     ChangeSize();
 #ifndef ANDROID
     SetWindowDisplaySize((HWND)gfx.hWnd);
@@ -485,19 +452,9 @@ int InitGfx()
     to_fullscreen = FALSE;
 
     // get maximal texture size
-    voodoo.max_tex_size = 2048;
-    voodoo.sup_large_tex = (voodoo.max_tex_size > 256 && !g_settings->hacks(CSettings::hack_PPL));
-
     voodoo.tex_min_addr[0] = voodoo.tex_min_addr[1] = gfxTexMinAddress(GFX_TMU0);
     voodoo.tex_max_addr[0] = voodoo.tex_max_addr[1] = gfxTexMaxAddress(GFX_TMU0);
 
-    // Is mirroring allowed?
-    if (!g_settings->hacks(CSettings::hack_Zelda)) //zelda's trees suffer from hardware mirroring
-        voodoo.sup_mirroring = 1;
-    else
-        voodoo.sup_mirroring = 0;
-
-    voodoo.sup_32bit_tex = TRUE;
     voodoo.gamma_correction = 0;
     voodoo.gamma_table_size = 256;
 
@@ -505,14 +462,6 @@ int InitGfx()
     setPattern();
 
     InitCombine();
-
-#ifdef SIMULATE_VOODOO1
-    voodoo.sup_mirroring = 0;
-#endif
-
-#ifdef SIMULATE_BANSHEE
-    voodoo.sup_mirroring = 1;
-#endif
 
     gfxCullMode(GFX_CULL_NEGATIVE);
 
@@ -595,19 +544,15 @@ int InitGfx()
                 options |= DUMP_TEX;
             }
 
-            g_ghq_use = (int)ext_ghq_init(voodoo.max_tex_size, // max texture width supported by hardware
-                voodoo.max_tex_size, // max texture height supported by hardware
-                voodoo.sup_32bit_tex ? 32 : 16, // max texture bpp supported by hardware
+            g_ghq_use = (int)ext_ghq_init(2048, // max texture width supported by hardware
+                2048, // max texture height supported by hardware
+                32, // max texture bpp supported by hardware
                 options,
                 g_settings->ghq_cache_size() * 1024 * 1024, // cache texture to system memory
                 g_settings->texture_dir(),
                 rdp.RomName, // name of ROM. must be no longer than 256 characters
                 DisplayLoadProgress);
         }
-    }
-    if (g_ghq_use)
-    {
-        voodoo.sup_mirroring = 1;
     }
     return TRUE;
 }
@@ -685,32 +630,15 @@ EXPORT void CALL ChangeWindow(void)
 {
     WriteTrace(TraceGlide64, TraceDebug, "-");
 
-    if (evoodoo)
+    if (!ev_fullscreen)
     {
-        if (!ev_fullscreen)
-        {
-            to_fullscreen = TRUE;
-            ev_fullscreen = TRUE;
-        }
-        else
-        {
-            ev_fullscreen = FALSE;
-            InitGfx();
-        }
+        to_fullscreen = TRUE;
+        ev_fullscreen = TRUE;
     }
     else
     {
-        // Go to fullscreen at next dlist
-        // This is for compatibility with 1964, which reloads the plugin
-        //  when switching to fullscreen
-        if (!GfxInitDone)
-        {
-            to_fullscreen = TRUE;
-        }
-        else
-        {
-            ReleaseGfx();
-        }
+        ev_fullscreen = FALSE;
+        InitGfx();
     }
 }
 
@@ -836,9 +764,6 @@ int CALL InitiateGFX(GFX_INFO Gfx_Info)
     CRC_BuildTable();
     CountCombine();
     ZLUT_init();
-
-    evoodoo = 1;
-    voodoo.has_2mb_tex_boundary = 0;
     return TRUE;
 }
 
@@ -894,27 +819,6 @@ void CALL RomClosed(void)
     rdp.window_changed = TRUE;
     g_romopen = FALSE;
     ReleaseGfx();
-}
-
-static void CheckDRAMSize()
-{
-    uint32_t test;
-    GLIDE64_TRY
-    {
-        test = gfx.RDRAM[0x007FFFFF] + 1;
-    }
-        GLIDE64_CATCH
-    {
-        test = 0;
-    }
-        if (test)
-            BMASK = 0x7FFFFF;
-        else
-            BMASK = WMASK;
-#ifdef LOGGING
-    sprintf(out_buf, "Detected RDRAM size: %08lx", BMASK);
-    LOG(out_buf);
-#endif
 }
 
 /******************************************************************
@@ -973,9 +877,7 @@ void CALL RomOpen(void)
     g_settings->ReadGameSettings(name);
     ClearCache();
 
-    CheckDRAMSize();
-    // ** EVOODOO EXTENSIONS **
-    evoodoo = 1;
+    BMASK = g_settings->RdramSize() - 1;
     InitGfx();
 }
 
@@ -1319,10 +1221,6 @@ void newSwapBuffers()
         DrawWholeFrameBufferToScreen();
     }
 
-    if (g_settings->fb_hwfbe_enabled() && !g_settings->hacks(CSettings::hack_RE2) && !evoodoo)
-    {
-        gfxAuxBufferExt(GFX_BUFFER_AUXBUFFER);
-    }
     WriteTrace(TraceGlide64, TraceDebug, "BUFFER SWAPPED");
     gfxBufferSwap(g_settings->vsync());
     if (*gfx.VI_STATUS_REG & 0x08) //gamma correction is used

@@ -49,20 +49,10 @@ extern "C" {
     //#define CATCH_EXCEPTIONS	// catch exceptions so it doesn't freeze and will report
     // "The gfx plugin has caused an exception" instead.
 
-    //#define SHOW_FULL_TEXVIEWER	// shows the entire contents of the texture in the cache viewer,
-    // usually used to debug clamping issues.
-
     // Usually enabled
 #define LARGE_TEXTURE_HANDLING	// allow large-textured objects to be split?
 
-    // Simulations
-    //#define SIMULATE_VOODOO1
-    //#define SIMULATE_BANSHEE
-    //********
-
     extern unsigned int BMASK;
-#define WMASK	0x3FFFFF
-#define DMASK	0x1FFFFF
 
     extern uint32_t update_screen_count;
 
@@ -70,7 +60,6 @@ extern "C" {
     extern bool g_romopen;
     extern int to_fullscreen;
 
-    extern int evoodoo;
     extern int ev_fullscreen;
 
     extern int exception;

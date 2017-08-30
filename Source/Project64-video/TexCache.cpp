@@ -48,7 +48,7 @@ typedef struct TEXINFO_t
     uint32_t crc;
     uint32_t flags;
     int splits, splitheight;
-    uint64 ricecrc;
+    uint64_t ricecrc;
 } TEXINFO;
 
 TEXINFO texinfo[2];
@@ -263,7 +263,7 @@ void GetTexInfo(int id, int tile)
 
     // ** COMMENT THIS TO DISABLE LARGE TEXTURES
 #ifdef LARGE_TEXTURE_HANDLING
-    if (!voodoo.sup_large_tex && width > 256)
+    if (g_settings->hacks(CSettings::hack_PPL) && width > 256)
     {
         info->splits = ((width - 1) >> 8) + 1;
         info->splitheight = rdp.tiles(tile).height;
@@ -849,7 +849,7 @@ void TexCache()
                     mode_s = GFX_TEXTURECLAMP_CLAMP;
                 else
                 {
-                    if (rdp.tiles(tile).mirror_s && voodoo.sup_mirroring)
+                    if (rdp.tiles(tile).mirror_s && !g_settings->hacks(CSettings::hack_Zelda))
                         mode_s = GFX_TEXTURECLAMP_MIRROR_EXT;
                     else
                         mode_s = GFX_TEXTURECLAMP_WRAP;
@@ -863,7 +863,7 @@ void TexCache()
                     mode_t = GFX_TEXTURECLAMP_CLAMP;
                 else
                 {
-                    if (rdp.tiles(tile).mirror_t && voodoo.sup_mirroring)
+                    if (rdp.tiles(tile).mirror_t && !g_settings->hacks(CSettings::hack_Zelda))
                         mode_t = GFX_TEXTURECLAMP_MIRROR_EXT;
                     else
                         mode_t = GFX_TEXTURECLAMP_WRAP;
@@ -986,7 +986,7 @@ void LoadTex(int id, gfxChipID_t tmu)
     uint32_t size_y = rdp.tiles(td).height;
 
     // make size_x and size_y both powers of two
-    if (!voodoo.sup_large_tex)
+    if (g_settings->hacks(CSettings::hack_PPL))
     {
         if (size_x > 256) size_x = 256;
         if (size_y > 256) size_y = 256;
@@ -998,12 +998,11 @@ void LoadTex(int id, gfxChipID_t tmu)
     for (shift = 0; (1 << shift) < (int)size_y; shift++);
     size_y = 1 << shift;
 
-    // Voodoo 1 support is all here, it will automatically mirror to the full extent.
-    if (!voodoo.sup_mirroring)
+    if (g_settings->hacks(CSettings::hack_Zelda))
     {
-        if (rdp.tiles(td).mirror_s && !rdp.tiles(td).clamp_s && (voodoo.sup_large_tex || size_x <= 128))
+        if (rdp.tiles(td).mirror_s && !rdp.tiles(td).clamp_s && (!g_settings->hacks(CSettings::hack_PPL) || size_x <= 128))
             size_x <<= 1;
-        if (rdp.tiles(td).mirror_t && !rdp.tiles(td).clamp_t && (voodoo.sup_large_tex || size_y <= 128))
+        if (rdp.tiles(td).mirror_t && !rdp.tiles(td).clamp_t && (!g_settings->hacks(CSettings::hack_PPL) || size_y <= 128))
             size_y <<= 1;
     }
 
@@ -1262,7 +1261,7 @@ void LoadTex(int id, gfxChipID_t tmu)
 
         cache->ricecrc = ext_ghq_checksum(addr, tile_width, tile_height, (unsigned short)(rdp.tiles(td).format << 8 | rdp.tiles(td).size), bpl, paladdr);
         WriteTrace(TraceRDP, TraceDebug, "CI RICE CRC. format: %d, size: %d, CRC: %08lx, PalCRC: %08lx", rdp.tiles(td).format, rdp.tiles(td).size, (uint32_t)(cache->ricecrc & 0xFFFFFFFF), (uint32_t)(cache->ricecrc >> 32));
-        if (ext_ghq_hirestex((uint64)g64_crc, cache->ricecrc, palette, &ghqTexInfo))
+        if (ext_ghq_hirestex((uint64_t)g64_crc, cache->ricecrc, palette, &ghqTexInfo))
         {
             cache->is_hires_tex = ghqTexInfo.is_hires_tex;
             if (!ghqTexInfo.is_hires_tex && aspect != ghqTexInfo.aspectRatioLog2)
@@ -1530,7 +1529,7 @@ void LoadTex(int id, gfxChipID_t tmu)
         {
             if (!ghqTexInfo.data)
                 if (!g_settings->ghq_enht_nobg() || !rdp.texrecting || (texinfo[id].splits == 1 && texinfo[id].width <= 256))
-                    ext_ghq_txfilter((unsigned char*)texture, (int)real_x, (int)real_y, LOWORD(result), (uint64)g64_crc, &ghqTexInfo);
+                    ext_ghq_txfilter((unsigned char*)texture, (int)real_x, (int)real_y, LOWORD(result), (uint64_t)g64_crc, &ghqTexInfo);
 
             if (ghqTexInfo.data)
             {
@@ -1548,7 +1547,7 @@ void LoadTex(int id, gfxChipID_t tmu)
                     int splits = cache->splits;
                     if (ghqTexInfo.is_hires_tex)
                     {
-                        if (ghqTexInfo.tiles/*ghqTexInfo.untiled_width > max_tex_size*/)
+                        if (ghqTexInfo.tiles)
                         {
                             cache->scale = 1.0f;
                             cache->c_off = 0.5f;
@@ -1604,7 +1603,7 @@ void LoadTex(int id, gfxChipID_t tmu)
                                 cache->c_scl_y /= splits;
                             }
                         }
-                        if (voodoo.sup_mirroring)
+                        if (!g_settings->hacks(CSettings::hack_Zelda))
                         {
                             if (rdp.tiles(td).mirror_s && texinfo[id].tile_width == 2 * texinfo[id].width)
                                 cache->f_mirror_s = TRUE;
@@ -1646,15 +1645,6 @@ void LoadTex(int id, gfxChipID_t tmu)
         t_info->aspectRatioLog2 = aspect;
 
         uint32_t texture_size = gfxTexTextureMemRequired(GFX_MIPMAPLEVELMASK_BOTH, t_info);
-
-        // Check for 2mb boundary
-        // Hiroshi Morii <koolsmoky@users.sourceforge.net> required only for V1,Rush, and V2
-        if (voodoo.has_2mb_tex_boundary &&
-            (voodoo.tmem_ptr[tmu] < TEXMEM_2MB_EDGE) && (voodoo.tmem_ptr[tmu] + texture_size > TEXMEM_2MB_EDGE))
-        {
-            voodoo.tmem_ptr[tmu] = TEXMEM_2MB_EDGE;
-            cache->tmem_addr = voodoo.tmem_ptr[tmu];
-        }
 
         // Check for end of memory (too many textures to fit, clear cache)
         if (voodoo.tmem_ptr[tmu] + texture_size >= voodoo.tex_max_addr[tmu])

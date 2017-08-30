@@ -1,6 +1,7 @@
 // Microsoft Visual C++ generated resource script.
 //
 #include "resource.h"
+#include "../../Project64-core/Version.h"
 
 #define APSTUDIO_READONLY_SYMBOLS
 /////////////////////////////////////////////////////////////////////////////
@@ -960,12 +961,12 @@ BEGIN
     LTEXT           "Block:",IDC_BLOCK_INFO,9,200,168,8
 END
 
-IDD_Debugger_StackTrace DIALOGEX 0, 0, 199, 167
+IDD_Debugger_StackTrace DIALOGEX 0, 0, 223, 221
 STYLE DS_SETFONT | DS_FIXEDSYS | DS_CENTER | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
 CAPTION "Stack Trace"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    CONTROL         "",IDC_STACKTRACE_LIST,"SysListView32",LVS_REPORT | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,0,0,199,167
+    CONTROL         "",IDC_STACKTRACE_LIST,"SysListView32",LVS_REPORT | LVS_ALIGNLEFT | WS_TABSTOP,0,0,224,221
 END
 
 IDD_Debugger_RegCOP0 DIALOGEX 0, 0, 190, 210
@@ -1588,8 +1589,6 @@ BEGIN
 
     IDD_Debugger_StackTrace, DIALOG
     BEGIN
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 160
     END
 
     IDD_Debugger_RegCOP0, DIALOG
@@ -1800,13 +1799,13 @@ BEGIN
     BEGIN
         BLOCK "040904b0"
         BEGIN
-            VALUE "FileDescription", "Project64"
-            VALUE "FileVersion", "2.3.0.9999"
-            VALUE "InternalName", "Project64"
-            VALUE "LegalCopyright", "Copyright (C) 2013"
-            VALUE "OriginalFilename", "Project64.exe"
-            VALUE "ProductName", "Project64"
-            VALUE "ProductVersion", "2.3.0.9999"
+            VALUE "FileDescription",  VER_FILE_DESCRIPTION_STR "\0"
+            VALUE "FileVersion",      VER_FILE_VERSION_STR "\0"
+            VALUE "InternalName",     VER_INTERNAL_NAME_STR "\0"
+            VALUE "LegalCopyright",   VER_COPYRIGHT_STR "\0"
+            VALUE "OriginalFilename", VER_ORIGINAL_FILENAME_STR "\0"
+            VALUE "ProductName",      VER_PRODUCTNAME_STR
+            VALUE "ProductVersion",   VER_PRODUCT_VERSION_STR "\0"
         END
     END
     BLOCK "VarFileInfo"
