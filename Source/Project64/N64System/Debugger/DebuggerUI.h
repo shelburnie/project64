@@ -15,3 +15,4 @@
 #include "Debugger-DMALogView.h"
 #include "Debugger-StackView.h"
 #include "Debugger-StackTrace.h"
+#include "Debugger-DisplayList.h"

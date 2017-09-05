@@ -1,7 +1,6 @@
 // Microsoft Visual C++ generated resource script.
 //
 #include "resource.h"
-#include "../../Project64-core/Version.h"
 
 #define APSTUDIO_READONLY_SYMBOLS
 /////////////////////////////////////////////////////////////////////////////
@@ -1262,6 +1261,19 @@ BEGIN
     EDITTEXT        IDC_DD48_EDIT,87,226,39,10,ES_UPPERCASE | ES_AUTOHSCROLL,WS_EX_RIGHT
 END
 
+IDD_Debugger_DisplayList DIALOGEX 0, 0, 605, 310
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_MINIMIZEBOX | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+CAPTION "Display List"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    GROUPBOX        "Segments",IDC_SEGMENTS_BOX,507,27,94,181,0,WS_EX_TRANSPARENT
+    GROUPBOX        "Static",IDC_ADDR_BOX,409,2,192,25,0,WS_EX_TRANSPARENT
+    GROUPBOX        "",IDC_INFO_BOX,410,27,94,181,0,WS_EX_TRANSPARENT
+    PUSHBUTTON      "Refresh",IDC_REFRESH_BTN,410,211,95,14
+    CONTROL         "",IDC_SEGMENTS_LIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_EDITLABELS | LVS_OWNERDRAWFIXED | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,512,39,85,160
+    CONTROL         "",IDC_CMD_LIST,"SysListView32",LVS_REPORT | LVS_OWNERDRAWFIXED | LVS_ALIGNLEFT | WS_TABSTOP,0,0,406,310
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -1675,6 +1687,11 @@ BEGIN
         TOPMARGIN, 7
         BOTTOMMARGIN, 219
     END
+
+    IDD_Debugger_DisplayList, DIALOG
+    BEGIN
+        RIGHTMARGIN, 598
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
@@ -1799,13 +1816,13 @@ BEGIN
     BEGIN
         BLOCK "040904b0"
         BEGIN
-            VALUE "FileDescription",  VER_FILE_DESCRIPTION_STR "\0"
-            VALUE "FileVersion",      VER_FILE_VERSION_STR "\0"
-            VALUE "InternalName",     VER_INTERNAL_NAME_STR "\0"
-            VALUE "LegalCopyright",   VER_COPYRIGHT_STR "\0"
-            VALUE "OriginalFilename", VER_ORIGINAL_FILENAME_STR "\0"
-            VALUE "ProductName",      VER_PRODUCTNAME_STR
-            VALUE "ProductVersion",   VER_PRODUCT_VERSION_STR "\0"
+            VALUE "FileDescription", "Project64"
+            VALUE "FileVersion", "2.4.0.9999"
+            VALUE "InternalName", "Project64"
+            VALUE "LegalCopyright", "Copyright (C) 2013"
+            VALUE "OriginalFilename", "Project64.exe"
+            VALUE "ProductName", "Project64"
+            VALUE "ProductVersion", "2.4.0.9999"
         END
     END
     BLOCK "VarFileInfo"
@@ -1970,6 +1987,11 @@ BEGIN
 END
 
 IDD_Debugger_RegDD AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_Debugger_DisplayList AFX_DIALOG_LAYOUT
 BEGIN
     0
 END

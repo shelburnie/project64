@@ -16,4 +16,5 @@ __interface CDebugger
 	virtual bool CPUStepStarted(void) = 0;
 	virtual void CPUStep(void) = 0;
 	virtual void FrameDrawn(void) = 0;
+    virtual void RSPReceivedDList(void) = 0;
 };

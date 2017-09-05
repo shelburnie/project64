@@ -65,6 +65,7 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="N64System\Debugger\Debugger-DisplayList.cpp" />
     <ClCompile Include="N64System\Debugger\Debugger-StackView.cpp" />
     <ClCompile Include="N64System\Debugger\Assembler.cpp" />
     <ClCompile Include="main.cpp" />
@@ -77,7 +78,9 @@
     <ClCompile Include="N64System\Debugger\Debugger-ViewMemory.cpp" />
     <ClCompile Include="N64System\Debugger\Debugger.cpp" />
     <ClCompile Include="N64System\Debugger\Breakpoints.cpp" />
+    <ClCompile Include="N64System\Debugger\DListDecoder.cpp" />
     <ClCompile Include="N64System\Debugger\DMALog.cpp" />
+    <ClCompile Include="N64System\Debugger\ModelConverter.cpp" />
     <ClCompile Include="N64System\Debugger\ScriptSystem.cpp" />
     <ClCompile Include="Plugins\PluginList.cpp" />
     <ClCompile Include="Settings\GuiSettings.cpp" />
@@ -122,13 +125,16 @@
     <ClCompile Include="UserInterface\WTLControls\PartialGroupBox.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="N64System\Debugger\Debugger-DisplayList.h" />
     <ClInclude Include="N64System\Debugger\Debugger-StackView.h" />
     <ClInclude Include="N64System\Debugger\Debugger-AddSymbol.h" />
     <ClInclude Include="N64System\Debugger\Assembler.h" />
     <ClInclude Include="N64System\Debugger\Debugger-RegisterTabs.h" />
     <ClInclude Include="N64System\Debugger\Debugger-StackTrace.h" />
     <ClInclude Include="N64System\Debugger\Debugger-DMALogView.h" />
+    <ClInclude Include="N64System\Debugger\DListDecoder.h" />
     <ClInclude Include="N64System\Debugger\DMALog.h" />
+    <ClInclude Include="N64System\Debugger\ModelConverter.h" />
     <ClInclude Include="N64System\Debugger\OpInfo.h" />
     <ClInclude Include="N64System\Debugger\ScriptHook.h" />
     <ClInclude Include="N64System\Debugger\ScriptInstance.h" />

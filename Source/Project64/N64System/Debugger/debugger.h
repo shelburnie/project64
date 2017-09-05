@@ -20,6 +20,7 @@ class CDebugSymbols;
 class CDebugDMALogView;
 class CDebugStackView;
 class CDebugStackTrace;
+class CDebugDisplayList;
 
 class CDMALog;
 class CBreakpoints;
@@ -31,6 +32,7 @@ __interface CDebugger
 	virtual bool CPUStepStarted ( void ) = 0;
 	virtual void CPUStep ( void ) = 0;
 	virtual void FrameDrawn ( void ) = 0;
+    virtual void RSPReceivedDList ( void ) = 0;
 };
 
 class CDebuggerUI :
@@ -46,11 +48,12 @@ class CDebuggerUI :
 	CDebugDMALogView    * m_DMALogView;
 	CDebugStackTrace    * m_StackTrace;
 	CDebugStackView     * m_StackView;
+    CDebugDisplayList   * m_DisplayList;
 
 	CBreakpoints        * m_Breakpoints;
 	CScriptSystem       * m_ScriptSystem;
 	CDMALog             * m_DMALog;
-
+    
 	void BreakpointHit(void);
 
 protected:
@@ -60,7 +63,8 @@ protected:
 	void TLBChanged         ( void );
 	bool CPUStepStarted     ( void );
 	void CPUStep            ( void );
-	void FrameDrawn         ( void );
+    void FrameDrawn         ( void );
+    void RSPReceivedDList   ( void );
 	
 public:
     void Debug_Reset                   ( void );
@@ -83,6 +87,7 @@ public:
     void Debug_RefreshStackWindow      ( void );
     void Debug_RefreshStackTraceWindow ( void );
     void Debug_ShowDMALogWindow        ( void );
+    void Debug_ShowDisplayListWindow   ( void );
 
 	CBreakpoints* Breakpoints();
 	CDebugSymbols* Symbols();

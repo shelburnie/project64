@@ -6,7 +6,7 @@
 #define VER_VER_DEBUG                   0
 #define VERSION_MAJOR                   2
 #define IDAPPLY                         3
-#define VERSION_MINOR                   3
+#define VERSION_MINOR                   4
 #define IDI_PJ64_Icon                   101
 #define IDD_Rom_Information             104
 #define IDD_Key_Prompt                  108
@@ -76,6 +76,7 @@
 #define IDD_Debugger_RegRDRAM           198
 #define IDD_Debugger_RegVI              199
 #define IDD_Debugger_RegDD              200
+#define IDD_Debugger_DisplayList        201
 #define IDC_MENU_ITEM_TEXT              1000
 #define IDC_CLOSE_BUTTON                1001
 #define IDC_LIST2                       1003
@@ -605,6 +606,11 @@
 #define IDC_DD40_EDIT                   1442
 #define IDC_DD44_EDIT                   1443
 #define IDC_DD48_EDIT                   1444
+#define IDC_SEGMENTS_LIST               1446
+#define IDC_ADDR_BOX                    1448
+#define IDC_INFO_BOX                    1449
+#define IDC_SEGMENTS_BOX                1450
+#define IDC_REFRESH_BTN                 1451
 #define VERSION_BUILD                   9999
 #define ID_POPUP_SHOWINMEMORYVIEWER     40005
 #define ID_POPUPMENU_PLAYGAMEWITHDISK   40008
@@ -639,9 +645,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        194
+#define _APS_NEXT_RESOURCE_VALUE        203
 #define _APS_NEXT_COMMAND_VALUE         40041
-#define _APS_NEXT_CONTROL_VALUE         1445
+#define _APS_NEXT_CONTROL_VALUE         1452
 #define _APS_NEXT_SYMED_VALUE           102
 #endif
 #endif

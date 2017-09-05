@@ -1992,6 +1992,7 @@ void CN64System::RunRSP()
                 {
                 case 1:
                     WriteTrace(TraceRSP, TraceDebug, "*** Display list ***");
+                    g_Debugger->RSPReceivedDList();
                     m_DlistCount += 1;
                     m_FPS.UpdateDlCounter();
                     break;
