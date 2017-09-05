@@ -436,6 +436,11 @@ bool CDebuggerUI::CPUStepStarted()
         }
         else // Write instructions
         {
+			if (m_Breakpoints->IsLocked(memoryAddress))
+			{
+				m_Breakpoints->Skip(); // block write
+			}
+
             m_ScriptSystem->HookCPUWrite()->InvokeByParamInRange(memoryAddress);
 
             if (m_Breakpoints->WBPExists(memoryAddress))

@@ -219,6 +219,14 @@ LRESULT CDebugMemoryView::OnClicked(WORD /*wNotifyCode*/, WORD wID, HWND, BOOL& 
 		m_Breakpoints->WBPClear();
 		RefreshMemory(true);
 		break;
+	case ID_POPUPMENU_TOGGLELOCK:
+		m_Breakpoints->ToggleLock(m_CtxMenuAddr);
+		RefreshMemory(true);
+		break;
+	case ID_POPUPMENU_CLEARLOCKS:
+		m_Breakpoints->ClearLocks();
+		RefreshMemory(true);
+		break;
 	case ID_POPUPMENU_VIEWDISASM:
 		m_Debugger->Debug_ShowCommandsLocation(m_CtxMenuAddr, true);
 		break;
@@ -247,6 +255,10 @@ LRESULT CDebugMemoryView::OnMemoryRightClicked(LPNMHDR lpNMHDR)
 	if (m_Breakpoints->m_RBP.size() == 0 && m_Breakpoints->m_WBP.size() == 0)
 	{
 		EnableMenuItem(hPopupMenu, ID_POPUPMENU_CLEARALLBPS, MF_DISABLED | MF_GRAYED);
+	}
+	if (m_Breakpoints->NumLocks() == 0)
+	{
+		EnableMenuItem(hPopupMenu, ID_POPUPMENU_CLEARLOCKS, MF_DISABLED | MF_GRAYED);
 	}
 	
 	POINT mouse;
@@ -701,12 +713,17 @@ void CDebugMemoryView::SelectColors(uint32_t vaddr, bool changed, COLORREF& bgCo
 
 	CSymbols::LeaveCriticalSection();
 
+	bool bLocked = m_Breakpoints->IsLocked(vaddr);
 	bool bHaveReadBP = m_Breakpoints->RBPExists(vaddr);
 	bool bHaveWriteBP = m_Breakpoints->WBPExists(vaddr);
 
 	fgHiColor = RGB(0x00, 0x00, 0x00);
 
-	if (bHaveReadBP && bHaveWriteBP)
+	if (bLocked)
+	{
+		bgColor = RGB(0xDD, 0xAA, 0xAA);
+	}
+	else if (bHaveReadBP && bHaveWriteBP)
 	{
 		bgColor = RGB(0xAA, 0xDD, 0xDD);
 	}

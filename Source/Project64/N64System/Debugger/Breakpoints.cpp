@@ -188,3 +188,42 @@ void CBreakpoints::BPClear()
 	WBPClear();
 	EBPClear();
 }
+
+void CBreakpoints::ToggleLock(uint32_t vAddr)
+{
+	int lockIndex = GetLockIndex(vAddr);
+	if (lockIndex == -1)
+	{
+		m_Locks.push_back(vAddr);
+		return;
+	}
+	m_Locks.erase(m_Locks.begin() + lockIndex);
+}
+
+void CBreakpoints::ClearLocks()
+{
+	m_Locks.clear();
+}
+
+int CBreakpoints::GetLockIndex(uint32_t vAddr)
+{
+	int nLocks = m_Locks.size();
+	for (int i = 0; i < nLocks; i++)
+	{
+		if (m_Locks[i] == vAddr)
+		{
+			return i;
+		}
+	}
+	return -1;
+}
+
+bool CBreakpoints::IsLocked(uint32_t vAddr)
+{
+	return GetLockIndex(vAddr) != -1;
+}
+
+int CBreakpoints::NumLocks()
+{
+	return m_Locks.size();
+}

@@ -1758,6 +1758,9 @@ BEGIN
         MENUITEM "Toggle write breakpoint",     ID_POPUPMENU_TOGGLEWBP
         MENUITEM "Clear all breakpoints",       ID_POPUPMENU_CLEARALLBPS
         MENUITEM SEPARATOR
+        MENUITEM "Toggle lock",                 ID_POPUPMENU_TOGGLELOCK
+        MENUITEM "Clear locks",                 ID_POPUPMENU_CLEARLOCKS
+        MENUITEM SEPARATOR
         MENUITEM "View disassembly...",         ID_POPUPMENU_VIEWDISASM
         MENUITEM SEPARATOR
         MENUITEM "Add symbol...",               ID_POPUPMENU_ADDSYMBOL

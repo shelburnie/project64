@@ -36,6 +36,7 @@ public:
 	std::vector<BREAKPOINT> m_RBP;
 	std::vector<BREAKPOINT> m_WBP;
 	std::vector<BREAKPOINT> m_EBP;
+	std::vector<uint32_t> m_Locks;
 
 	int m_nRBP;
 	int m_nWBP;
@@ -54,6 +55,12 @@ public:
 		m_Skipping = FALSE;
 		return ret;
 	}
+
+	void ToggleLock(uint32_t vAddr);
+	void ClearLocks();
+	int GetLockIndex(uint32_t vAddr);
+	bool IsLocked(uint32_t vAddr);
+	int NumLocks();
 
 	bool RBPAdd(uint32_t address, bool bTemporary = false);
 	void RBPRemove(uint32_t address);
