@@ -81,46 +81,44 @@ public:
 
 	// inlines
 
-	inline BPSTATE RBPExists(uint32_t address, bool bRemoveTemp = false)
+	inline BPSTATE RBPExists(uint32_t address, int nBytes = 0, bool bRemoveTemp = false)
 	{
 		for (int i = 0; i < m_nRBP; i++)
 		{
-			if (m_RBP[i].address != address)
+            uint32_t bpAddr = m_RBP[i].address;
+			if (bpAddr == address || (bpAddr >= address && bpAddr < address + nBytes))
 			{
-				continue;
+                if (m_RBP[i].bTemporary)
+                {
+                    if (bRemoveTemp)
+                    {
+                        RBPRemove(address);
+                    }
+                    return BP_SET_TEMP;
+                }
+                return BP_SET;
 			}
-
-			if (m_RBP[i].bTemporary)
-			{
-				if (bRemoveTemp)
-				{
-					RBPRemove(address);
-				}
-				return BP_SET_TEMP;
-			}
-			return BP_SET;
 		}
 		return BP_NOT_SET;
 	}
 
-	inline BPSTATE WBPExists(uint32_t address, bool bRemoveTemp = false)
+	inline BPSTATE WBPExists(uint32_t address, int nBytes = 0, bool bRemoveTemp = false)
 	{
 		for (int i = 0; i < m_nWBP; i++)
 		{
-			if (m_WBP[i].address != address)
+            uint32_t bpAddr = m_WBP[i].address;
+			if (bpAddr == address || (bpAddr >= address && bpAddr < address + nBytes))
 			{
-				continue;
+                if (m_WBP[i].bTemporary)
+                {
+                    if (bRemoveTemp)
+                    {
+                        WBPRemove(address);
+                    }
+                    return BP_SET_TEMP;
+                }
+                return BP_SET;
 			}
-
-			if (m_WBP[i].bTemporary)
-			{
-				if (bRemoveTemp)
-				{
-					WBPRemove(address);
-				}
-				return BP_SET_TEMP;
-			}
-			return BP_SET;
 		}
 		return BP_NOT_SET;
 	}
