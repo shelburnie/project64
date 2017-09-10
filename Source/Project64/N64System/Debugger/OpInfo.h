@@ -43,6 +43,11 @@ public:
 		return false;
 	}
 
+    bool IsJAL()
+    {
+        return (m_OpCode.op == R4300i_JAL || (m_OpCode.op == R4300i_SPECIAL && m_OpCode.funct == R4300i_SPECIAL_JALR));
+    }
+
 	bool IsJump()
 	{
 		// j, jal, jr, jalr, exception

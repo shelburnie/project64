@@ -132,6 +132,7 @@ private:
 
 	CButton m_ViewPCButton;
 	CButton m_StepButton;
+    CButton m_StepOverButton;
 	CButton m_SkipButton;
 	CButton m_GoButton;
 
@@ -195,6 +196,7 @@ private:
 	
 	void CPUSkip();
 	void CPUStepInto();
+    void CPUStepOver();
 	void CPUResume();
 
 	LRESULT	OnInitDialog         (UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
@@ -238,7 +240,8 @@ private:
 
 	BEGIN_DLGRESIZE_MAP(CDebugCommandsView)
 		DLGRESIZE_CONTROL(IDC_GO_BTN, DLSZ_MOVE_X)
-		DLGRESIZE_CONTROL(IDC_STEP_BTN, DLSZ_MOVE_X)
+        DLGRESIZE_CONTROL(IDC_STEP_BTN, DLSZ_MOVE_X)
+        DLGRESIZE_CONTROL(IDC_STEPOVER_BTN, DLSZ_MOVE_X)
 		DLGRESIZE_CONTROL(IDC_SKIP_BTN, DLSZ_MOVE_X)
 		DLGRESIZE_CONTROL(IDC_ADDR_EDIT, DLSZ_MOVE_X)
 		DLGRESIZE_CONTROL(IDC_SYMBOLS_BTN, DLSZ_MOVE_X)
@@ -259,7 +262,8 @@ private:
 
 	BEGIN_TOOLTIP_MAP()
 		TOOLTIP(IDC_SKIP_BTN, "Skip (F1)")
-		TOOLTIP(IDC_STEP_BTN, "Step (F2)")
+        TOOLTIP(IDC_STEP_BTN, "Step (F2)")
+        TOOLTIP(IDC_STEPOVER_BTN, "Step over (F3)")
 		TOOLTIP(IDC_GO_BTN, "Go (F4)")
 		TOOLTIP(IDC_ADDBP_BTN, "Add breakpoint...")
 		TOOLTIP(IDC_RMBP_BTN, "Remove selected breakpoint")

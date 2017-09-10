@@ -77,6 +77,9 @@ LRESULT	CDebugCommandsView::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARA
 	m_StepButton.Attach(GetDlgItem(IDC_STEP_BTN));
 	m_StepButton.EnableWindow(FALSE);
 
+    m_StepOverButton.Attach(GetDlgItem(IDC_STEPOVER_BTN));
+    m_StepOverButton.EnableWindow(FALSE);
+
 	m_SkipButton.Attach(GetDlgItem(IDC_SKIP_BTN));
 	m_SkipButton.EnableWindow(FALSE);
 
@@ -121,6 +124,7 @@ LRESULT	CDebugCommandsView::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARA
 	{
 		m_ViewPCButton.EnableWindow(TRUE);
 		m_StepButton.EnableWindow(TRUE);
+        m_StepOverButton.EnableWindow(TRUE);
 		m_SkipButton.EnableWindow(TRUE);
 		m_GoButton.EnableWindow(TRUE);
 	}
@@ -146,9 +150,7 @@ void CDebugCommandsView::InterceptKeyDown(WPARAM wParam, LPARAM lParam)
 	{
 	case VK_F1: CPUSkip(); break;
 	case VK_F2: CPUStepInto(); break;
-	case VK_F3:
-		// reserved step over
-		break;
+	case VK_F3: CPUStepOver(); break;
 	case VK_F4: CPUResume(); break;
 	}
 }
@@ -482,6 +484,7 @@ void CDebugCommandsView::ShowAddress(DWORD address, BOOL top)
 			// Disable buttons
 			m_ViewPCButton.EnableWindow(FALSE);
 			m_StepButton.EnableWindow(FALSE);
+            m_StepOverButton.EnableWindow(FALSE);
 			m_SkipButton.EnableWindow(FALSE);
 			m_GoButton.EnableWindow(FALSE);
 
@@ -511,6 +514,7 @@ void CDebugCommandsView::ShowAddress(DWORD address, BOOL top)
 		// Enable buttons
 		m_ViewPCButton.EnableWindow(TRUE);
 		m_StepButton.EnableWindow(TRUE);
+        m_StepOverButton.EnableWindow(TRUE);
 		m_SkipButton.EnableWindow(TRUE);
 		m_GoButton.EnableWindow(TRUE);
 
@@ -1074,6 +1078,28 @@ void CDebugCommandsView::CPUStepInto()
 	m_Breakpoints->Resume();
 }
 
+void CDebugCommandsView::CPUStepOver()
+{
+    if (g_MMU == NULL)
+    {
+        return;
+    }
+
+    uint32_t pc = g_Reg->m_PROGRAM_COUNTER;
+
+    COpInfo opInfo;
+    g_MMU->LW_VAddr(g_Reg->m_PROGRAM_COUNTER, opInfo.m_OpCode.Hex);
+
+    if (!opInfo.IsJAL())
+    {
+        CPUStepInto();
+        return;
+    }
+
+    m_Breakpoints->EBPAdd(pc + 8, true); // put temp BP on return address
+    CPUResume();
+}
+
 void CDebugCommandsView::CPUResume()
 {
 	m_Debugger->Debug_RefreshStackWindow();
@@ -1125,6 +1151,10 @@ LRESULT CDebugCommandsView::OnClicked(WORD /*wNotifyCode*/, WORD wID, HWND /*hWn
 		CPUStepInto();
 		m_AddressEdit.SetFocus();
 		break;
+    case IDC_STEPOVER_BTN:
+        CPUStepOver();
+        m_AddressEdit.SetFocus();
+        break;
 	case IDC_SKIP_BTN:
 		CPUSkip();
 		m_AddressEdit.SetFocus();
