@@ -58,8 +58,8 @@ public:
 
 	void ToggleLock(uint32_t vAddr);
 	void ClearLocks();
-	int GetLockIndex(uint32_t vAddr);
-	bool IsLocked(uint32_t vAddr);
+	int GetLockIndex(uint32_t vAddr, int nBytes = 0);
+	bool IsLocked(uint32_t vAddr, int nBytes = 0);
 	int NumLocks();
 
 	bool RBPAdd(uint32_t address, bool bTemporary = false);

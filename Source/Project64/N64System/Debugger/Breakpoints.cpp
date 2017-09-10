@@ -205,12 +205,12 @@ void CBreakpoints::ClearLocks()
 	m_Locks.clear();
 }
 
-int CBreakpoints::GetLockIndex(uint32_t vAddr)
+int CBreakpoints::GetLockIndex(uint32_t vAddr, int nBytes)
 {
 	int nLocks = m_Locks.size();
 	for (int i = 0; i < nLocks; i++)
 	{
-		if (m_Locks[i] == vAddr)
+		if (m_Locks[i] == vAddr || m_Locks[i] >= vAddr && (m_Locks[i] < vAddr + nBytes))
 		{
 			return i;
 		}
@@ -218,9 +218,9 @@ int CBreakpoints::GetLockIndex(uint32_t vAddr)
 	return -1;
 }
 
-bool CBreakpoints::IsLocked(uint32_t vAddr)
+bool CBreakpoints::IsLocked(uint32_t vAddr, int nBytes)
 {
-	return GetLockIndex(vAddr) != -1;
+	return GetLockIndex(vAddr, nBytes) != -1;
 }
 
 int CBreakpoints::NumLocks()

@@ -416,62 +416,35 @@ bool CDebuggerUI::CPUStepStarted()
         goto breakpoint_hit;
     }
 
-    // Memory breakpoints
+    // Memory breakpoints & locks
     
     OPCODE Opcode = R4300iOp::m_Opcode;
     uint32_t op = Opcode.op;
 
-    if (op >= R4300i_LDL && op <= R4300i_SD && op != R4300i_CACHE) // Read and write instructions
+    COpInfo opInfo(Opcode);
+    
+    if (opInfo.IsLoadStore()) // Read and write instructions
     {
         uint32_t memoryAddress = g_Reg->m_GPR[Opcode.base].UW[0] + (int16_t)Opcode.offset;
         
-        if (op <= R4300i_LWU || (op >= R4300i_LL && op <= R4300i_LD)) // Read instructions
+        if (opInfo.IsLoad()) // Read instructions
         {
-            int nBytesRead;
-            if (op == R4300i_LB || op == R4300i_LBU)
-            {
-                nBytesRead = 1;
-            }
-            else if (op == R4300i_LH || op == R4300i_LHU)
-            {
-                nBytesRead = 2;
-            }
-            else
-            {
-                nBytesRead = 4;
-            }
-
+            int nBytes = opInfo.NumBytesLoaded();
+            
             m_ScriptSystem->HookCPURead()->InvokeByParamInRange(memoryAddress);
             
-            if (m_Breakpoints->RBPExists(memoryAddress, nBytesRead))
+            if (m_Breakpoints->RBPExists(memoryAddress, nBytes))
             {
                 goto breakpoint_hit;
             }
         }
         else // Write instructions
         {
-            int nBytesWritten;
-            if (op == R4300i_SB)
-            {
-                nBytesWritten = 1;
-            }
-            else if (op == R4300i_SH)
-            {
-                nBytesWritten = 2;
-            }
-            else
-            {
-                nBytesWritten = 4;
-            }
-
-            if (m_Breakpoints->IsLocked(memoryAddress))
-            {
-                m_Breakpoints->Skip(); // block write
-            }
-
+            int nBytes = opInfo.NumBytesStored();
+            
             m_ScriptSystem->HookCPUWrite()->InvokeByParamInRange(memoryAddress);
-
-            if (m_Breakpoints->WBPExists(memoryAddress, nBytesWritten))
+            
+            if (m_Breakpoints->WBPExists(memoryAddress, nBytes))
             {
                 goto breakpoint_hit;
             }
@@ -482,18 +455,18 @@ bool CDebuggerUI::CPUStepStarted()
                 uint32_t dmaRomAddr = g_Reg->PI_CART_ADDR_REG & 0x0FFFFFFF;
                 uint32_t dmaRamAddr = g_Reg->PI_DRAM_ADDR_REG | 0x80000000;
                 uint32_t dmaLen = g_Reg->m_GPR[Opcode.rt].UW[0] + 1;
-                uint32_t endAddr = dmaRamAddr + dmaLen;
                 
                 m_DMALog->AddEntry(dmaRomAddr, dmaRamAddr, dmaLen);
 
-                for (int i = 0; i < m_Breakpoints->m_nWBP; i++)
+                if (m_Breakpoints->WBPExists(dmaRamAddr, dmaLen))
                 {
-                    uint32_t wbpAddr = m_Breakpoints->m_WBP[i].address;
-                    if (wbpAddr >= dmaRamAddr && wbpAddr < endAddr)
-                    {
-                        goto breakpoint_hit;
-                    }
+                    goto breakpoint_hit;
                 }
+            }
+
+            if (m_Breakpoints->IsLocked(memoryAddress, nBytes))
+            {
+                m_Breakpoints->Skip(); // block write
             }
         }
     }
