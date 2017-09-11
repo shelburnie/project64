@@ -425,6 +425,9 @@
     <ClInclude Include="N64System\Debugger\OpInfo.h">
       <Filter>Header Files\N64 System Headers\Debugger Headers</Filter>
     </ClInclude>
+    <ClInclude Include="N64System\Debugger\SavePosDialog.h">
+      <Filter>Header Files\N64 System Headers\Debugger Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\divider.cur">

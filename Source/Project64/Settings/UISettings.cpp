@@ -64,6 +64,19 @@ void RegisterUISettings (void)
     g_Settings->AddHandler((SettingID)(FirstUISettings + File_RecentGameFileIndex), new CSettingTypeApplicationIndex("Recent File", "Recent Rom", Default_None));
 
     g_Settings->AddHandler((SettingID)(FirstUISettings + SupportWindows_RunCount), new CSettingTypeApplication("Support Project64", "Run Count", (uint32_t)0));
+
+    //Debugger UI
+    g_Settings->AddHandler((SettingID)(FirstUISettings + DebuggerUI_CommandsPos), new CSettingTypeApplication("Debugger UI", "Commands Pos", Default_None));
+    g_Settings->AddHandler((SettingID)(FirstUISettings + DebuggerUI_MemoryPos), new CSettingTypeApplication("Debugger UI", "Memory Pos", Default_None));
+    g_Settings->AddHandler((SettingID)(FirstUISettings + DebuggerUI_MemoryDumpPos), new CSettingTypeApplication("Debugger UI", "Memory Dump Pos", Default_None));
+    g_Settings->AddHandler((SettingID)(FirstUISettings + DebuggerUI_MemorySearchPos), new CSettingTypeApplication("Debugger UI", "Memory Search Pos", Default_None));
+    g_Settings->AddHandler((SettingID)(FirstUISettings + DebuggerUI_DMALogPos), new CSettingTypeApplication("Debugger UI", "DMA Log Pos", Default_None));
+    g_Settings->AddHandler((SettingID)(FirstUISettings + DebuggerUI_ScriptsPos), new CSettingTypeApplication("Debugger UI", "Scripts Pos", Default_None));
+    g_Settings->AddHandler((SettingID)(FirstUISettings + DebuggerUI_StackPos), new CSettingTypeApplication("Debugger UI", "Stack Pos", Default_None));
+    g_Settings->AddHandler((SettingID)(FirstUISettings + DebuggerUI_StackTracePos), new CSettingTypeApplication("Debugger UI", "Stack Trace Pos", Default_None));
+    g_Settings->AddHandler((SettingID)(FirstUISettings + DebuggerUI_SymbolsPos), new CSettingTypeApplication("Debugger UI", "Symbols Pos", Default_None));
+    g_Settings->AddHandler((SettingID)(FirstUISettings + DebuggerUI_TLBPos), new CSettingTypeApplication("Debugger UI", "TLB Pos", Default_None));
+    g_Settings->AddHandler((SettingID)(FirstUISettings + DebuggerUI_DisplayListPos), new CSettingTypeApplication("Debugger UI", "Display List Pos", Default_None));
 }
 
 void UISettingsSaveBool(UISettingID Type, bool Value)

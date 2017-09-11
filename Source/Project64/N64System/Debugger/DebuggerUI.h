@@ -3,6 +3,7 @@
 #include "../../WTLApp.h"
 #include "../../N64System.h"
 #include "DebugDialog.h"
+#include "SavePosDialog.h"
 #include "Debugger-MemorySearch.h"
 #include "Debugger-ViewMemory.h"
 #include "Debugger-MemoryDump.h"

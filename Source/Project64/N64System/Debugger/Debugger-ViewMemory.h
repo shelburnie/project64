@@ -13,7 +13,8 @@
 #include "Debugger-AddSymbol.h"
 
 class CDebugMemoryView :
-    public CDebugDialog < CDebugMemoryView >
+    public CDebugDialog < CDebugMemoryView >,
+    public CSavePosDialog < CDebugMemoryView >
 {
 public:
     enum { IDD = IDD_Debugger_Memory };
@@ -25,6 +26,7 @@ public:
 
 private:
 	BEGIN_MSG_MAP_EX(CDebugMemoryView)
+        CHAIN_MSG_MAP(CSavePosDialog<CDebugMemoryView>)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
 		COMMAND_CODE_HANDLER(BN_CLICKED, OnClicked)
 		COMMAND_HANDLER_EX(IDC_ADDR_EDIT, EN_CHANGE, OnAddrChanged)

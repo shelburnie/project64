@@ -19,6 +19,7 @@ HHOOK CDebugMemoryView::hWinMessageHook = NULL;
 
 CDebugMemoryView::CDebugMemoryView(CDebuggerUI * debugger) :
 CDebugDialog<CDebugMemoryView>(debugger),
+CSavePosDialog<CDebugMemoryView>(),
 m_MemoryList(NULL)
 {
     if (m_MemoryList == NULL)
@@ -37,6 +38,8 @@ CDebugMemoryView::~CDebugMemoryView()
 
 LRESULT	CDebugMemoryView::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
+    DlgSavePos_Init(DebuggerUI_MemoryPos);
+
 	m_SymbolColorStride = 0;
 	m_SymbolColorPhase = 0;
     m_DataStartLoc = (DWORD)-1;

@@ -50,6 +50,18 @@ enum UISettingID
     RomBrowser_SortAscendingIndex,
     RomBrowser_Maximized,
 
+    DebuggerUI_CommandsPos,
+    DebuggerUI_MemoryPos,
+    DebuggerUI_MemoryDumpPos,
+    DebuggerUI_MemorySearchPos,
+    DebuggerUI_DMALogPos,
+    DebuggerUI_ScriptsPos,
+    DebuggerUI_StackPos,
+    DebuggerUI_StackTracePos,
+    DebuggerUI_SymbolsPos,
+    DebuggerUI_TLBPos,
+    DebuggerUI_DisplayListPos,
+
     //Directory Info
     Directory_LastSave,
     Directory_RecentGameDirCount,
@@ -60,7 +72,7 @@ enum UISettingID
     File_RecentGameFileIndex,
 
     //Support Window
-    SupportWindows_RunCount,
+    SupportWindows_RunCount
 };
 
 void RegisterUISettings (void);

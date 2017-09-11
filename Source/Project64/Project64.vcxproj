@@ -154,6 +154,7 @@
     <ClInclude Include="N64System\Debugger\debugger.h" />
     <ClInclude Include="N64System\Debugger\DebuggerUI.h" />
     <ClInclude Include="N64System\Debugger\ScriptSystem.h" />
+    <ClInclude Include="N64System\Debugger\SavePosDialog.h" />
     <ClInclude Include="Settings\GuiSettings.h" />
     <ClInclude Include="Settings\NotificationSettings.h" />
     <ClInclude Include="Settings\UISettings.h" />

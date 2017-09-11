@@ -17,6 +17,7 @@
 #include "Debugger-RegisterTabs.h"
 
 #include <Project64/UserInterface/WTLControls/TooltipDialog.h>
+#include "SavePosDialog.h"
 
 class CCommandList : public CWindowImpl<CCommandList, CListViewCtrl>
 {
@@ -88,13 +89,14 @@ public:
 class CDebugCommandsView :
 	public CDebugDialog<CDebugCommandsView>,
 	public CDialogResize<CDebugCommandsView>,
-	public CToolTipDialog<CDebugCommandsView>
+	public CToolTipDialog<CDebugCommandsView>,
+    public CSavePosDialog<CDebugCommandsView>
 {
 	friend class CEditOp;
 
 public:
 	enum { IDD = IDD_Debugger_Commands };
-
+    
 	CDebugCommandsView(CDebuggerUI * debugger);
 	virtual ~CDebugCommandsView(void);
 
@@ -179,6 +181,8 @@ private:
 	void CheckCPUType();
 	void RefreshBreakpointList();
 	void RemoveSelectedBreakpoints();
+
+    void RedrawCommandsAndRegisters();
 	
 	bool AddressSafe(uint32_t vaddr);
 
@@ -205,10 +209,11 @@ private:
 	LRESULT	OnScroll             (UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	LRESULT	OnMeasureItem        (UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	LRESULT OnAddrChanged        (WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled);
-	LRESULT OnPCChanged        (WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled);
+	LRESULT OnPCChanged          (WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled);
 	LRESULT OnListBoxClicked     (WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled);
 	LRESULT	OnClicked            (WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled);
-
+    LRESULT	OnShowWindow         (UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+    
 	LRESULT	OnOpKeyDown(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	
 	LRESULT	OnCommandListClicked(NMHDR* pNMHDR);
@@ -219,9 +224,12 @@ private:
 	LRESULT OnDestroy            (void);
 
 	BEGIN_MSG_MAP_EX(CDebugCommandsView)
+        CHAIN_MSG_MAP(CSavePosDialog<CDebugCommandsView>)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
+        MESSAGE_HANDLER(WM_MOVE, OnSizing)
 		MESSAGE_HANDLER(WM_ACTIVATE, OnActivate)
-		MESSAGE_HANDLER(WM_SIZING, OnSizing)
+        MESSAGE_HANDLER(WM_SIZING, OnSizing)
+        MESSAGE_HANDLER(WM_SHOWWINDOW, OnShowWindow)
 		MESSAGE_HANDLER(WM_GETMINMAXINFO, OnGetMinMaxInfo)
 		MESSAGE_HANDLER(WM_VSCROLL, OnScroll)
 		MESSAGE_HANDLER(WM_MEASUREITEM, OnMeasureItem)
@@ -237,7 +245,7 @@ private:
 		MSG_WM_DESTROY(OnDestroy)
 		CHAIN_MSG_MAP(CDialogResize<CDebugCommandsView>)
 	END_MSG_MAP()
-
+    
 	BEGIN_DLGRESIZE_MAP(CDebugCommandsView)
 		DLGRESIZE_CONTROL(IDC_GO_BTN, DLSZ_MOVE_X)
         DLGRESIZE_CONTROL(IDC_STEP_BTN, DLSZ_MOVE_X)

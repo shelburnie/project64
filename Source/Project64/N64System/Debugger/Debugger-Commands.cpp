@@ -24,7 +24,8 @@ HHOOK CDebugCommandsView::hWinMessageHook = NULL;
 
 CDebugCommandsView::CDebugCommandsView(CDebuggerUI * debugger) :
 CDebugDialog<CDebugCommandsView>(debugger),
-CToolTipDialog<CDebugCommandsView>()
+CToolTipDialog<CDebugCommandsView>(),
+CSavePosDialog<CDebugCommandsView>()
 {
 	m_HistoryIndex = -1;
 	m_bIgnoreAddrChange = false;
@@ -41,17 +42,15 @@ CDebugCommandsView::~CDebugCommandsView(void)
 LRESULT	CDebugCommandsView::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
 	DlgResize_Init(false, true);
-	DlgToolTip_Init();
-
-	//m_ptMinTrackSize.x = 580;
-	//m_ptMinTrackSize.y = 495;
-
+    DlgSavePos_Init(DebuggerUI_CommandsPos);
+    DlgToolTip_Init();
+    
 	m_CommandListRows = 39;
 	
 	CheckCPUType();
 	
 	GetWindowRect(&m_DefaultWindowRect);
-
+    
 	// Setup address input
 
 	m_AddressEdit.Attach(GetDlgItem(IDC_ADDR_EDIT));
@@ -133,9 +132,36 @@ LRESULT	CDebugCommandsView::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARA
 
 	DWORD dwThreadID = ::GetCurrentThreadId();
 	hWinMessageHook = SetWindowsHookEx(WH_GETMESSAGE, (HOOKPROC)HookProc, NULL, dwThreadID);
-
+    
 	WindowCreated();
 	return TRUE;
+}
+
+void CDebugCommandsView::RedrawCommandsAndRegisters()
+{
+    // Fix command rows, register tab positioning
+
+    CRect listRect;
+    m_CommandList.GetWindowRect(listRect);
+
+    CRect headRect;
+    CHeaderCtrl listHead = m_CommandList.GetHeader();
+    listHead.GetWindowRect(&headRect);
+
+    int rowsHeight = listRect.Height() - headRect.Height();
+
+    int nRows = (rowsHeight / CCommandList::ROW_HEIGHT);
+
+    if (m_CommandListRows != nRows)
+    {
+        m_CommandListRows = nRows;
+        ShowAddress(m_StartAddress, TRUE);
+    }
+
+    m_RegisterTabs.RedrawCurrentTab();
+
+    // Fix cmd list header
+    listHead.ResizeClient(listRect.Width(), headRect.Height());
 }
 
 LRESULT CDebugCommandsView::OnDestroy(void)
@@ -1434,29 +1460,14 @@ LRESULT CDebugCommandsView::OnActivate(UINT uMsg, WPARAM wParam, LPARAM lParam, 
 
 LRESULT	CDebugCommandsView::OnSizing(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
-	CRect listRect;
-	m_CommandList.GetWindowRect(listRect);
-
-	CRect headRect;
-	CHeaderCtrl listHead = m_CommandList.GetHeader();
-	listHead.GetWindowRect(&headRect);
-
-	int rowsHeight = listRect.Height() - headRect.Height();
-	
-	int nRows = (rowsHeight / CCommandList::ROW_HEIGHT);
-	
-	if (m_CommandListRows != nRows)
-	{
-		m_CommandListRows = nRows;
-		ShowAddress(m_StartAddress, TRUE);
-	}
-	
-	m_RegisterTabs.RedrawCurrentTab();
-
-	// Fix cmd list header
-	listHead.ResizeClient(listRect.Width(), headRect.Height());
-
+    RedrawCommandsAndRegisters();
 	return FALSE;
+}
+
+LRESULT	CDebugCommandsView::OnShowWindow(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+{
+    RedrawCommandsAndRegisters();
+    return FALSE;
 }
 
 LRESULT CDebugCommandsView::OnScroll(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
