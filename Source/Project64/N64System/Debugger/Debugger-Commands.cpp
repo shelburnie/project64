@@ -59,6 +59,7 @@ LRESULT	CDebugCommandsView::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARA
 
 	// Setup PC register input
 	
+	m_bIgnorePCChange = true;
 	m_PCEdit.Attach(GetDlgItem(IDC_PC_EDIT));
 	m_PCEdit.SetDisplayType(CEditNumber::DisplayHex);
 	m_PCEdit.SetLimitText(8);

@@ -19,7 +19,7 @@ class CSavePosDialog
         CRect rect;
         pT->GetWindowRect(&rect);
         UISettingsSaveString(m_UISettingID, stdstr_f("%d,%d,%d,%d", rect.left, rect.top, rect.Width(), rect.Height()).c_str());
-        MessageBox(NULL, "pos saved", "test", MB_OK);
+        //MessageBox(NULL, "pos saved", "test", MB_OK);
     }
 
     void LoadWindowPosition()
@@ -30,7 +30,7 @@ class CSavePosDialog
         }
         T* pT = static_cast<T*>(this);
         std::string str = UISettingsLoadStringVal(m_UISettingID);
-        MessageBox(NULL, str.c_str(), "loaded", MB_OK);
+        //MessageBox(NULL, str.c_str(), "loaded", MB_OK);
         int left, top, width, height;
         int nParams = sscanf(str.c_str(), "%d,%d,%d,%d", &left, &top, &width, &height);
         if (nParams == 4)
