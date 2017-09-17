@@ -69,7 +69,7 @@ void CDebuggerUI::GameReset(CDebuggerUI * _this)
     {
         return;
     }
-    
+
     if (_this->m_CommandsView)
     {
         _this->m_CommandsView->Reset();
@@ -347,7 +347,7 @@ void CDebuggerUI::Debug_RefreshStackWindow(void)
 
 void CDebuggerUI::Debug_RefreshStackTraceWindow(void)
 {
-    if (m_StackTrace != NULL)
+    if (m_StackTrace != NULL && m_StackTrace->m_hWnd != NULL)
     {
         m_StackTrace->Refresh();
     }
@@ -382,7 +382,6 @@ CDMALog* CDebuggerUI::DMALog()
     return m_DMALog;
 }
 
-
 void CDebuggerUI::BreakpointHit()
 {
     m_Breakpoints->KeepDebugging();
@@ -391,7 +390,6 @@ void CDebuggerUI::BreakpointHit()
     Debug_RefreshStackTraceWindow();
     m_Breakpoints->Pause();
 }
-
 
 // CDebugger implementation
 
@@ -406,7 +404,7 @@ bool CDebuggerUI::CPUStepStarted()
 {
     uint32_t PROGRAM_COUNTER = g_Reg->m_PROGRAM_COUNTER;
     uint32_t JumpToLocation = R4300iOp::m_JumpToLocation;
-    
+
     m_ScriptSystem->HookCPUExec()->InvokeByParamInRange(PROGRAM_COUNTER);
     
     // PC breakpoints
@@ -416,23 +414,23 @@ bool CDebuggerUI::CPUStepStarted()
         goto breakpoint_hit;
     }
 
-    // Memory breakpoints & locks
-    
+    // Memory breakpoints
+
     OPCODE Opcode = R4300iOp::m_Opcode;
     uint32_t op = Opcode.op;
 
     COpInfo opInfo(Opcode);
-    
+
     if (opInfo.IsLoadStore()) // Read and write instructions
     {
         uint32_t memoryAddress = g_Reg->m_GPR[Opcode.base].UW[0] + (int16_t)Opcode.offset;
-        
+
         if (opInfo.IsLoad()) // Read instructions
         {
             int nBytes = opInfo.NumBytesLoaded();
-            
+
             m_ScriptSystem->HookCPURead()->InvokeByParamInRange(memoryAddress);
-            
+
             if (m_Breakpoints->RBPExists(memoryAddress, nBytes))
             {
                 goto breakpoint_hit;
@@ -448,7 +446,7 @@ bool CDebuggerUI::CPUStepStarted()
             {
                 goto breakpoint_hit;
             }
-            
+
             // Catch cart -> rdram dma
             if (memoryAddress == 0xA460000C) // PI_WR_LEN_REG
             {
@@ -548,20 +546,20 @@ void CDebuggerUI::FrameDrawn()
 
         hMainWnd = (HWND)mainWindow->GetWindowHandle();
     }
-    
+
     HDC hdc = GetDC(hMainWnd);
-    
+
     CRect rt;
 
     GetClientRect(hMainWnd, &rt);
     SetBkColor(hdc, RGB(0, 0, 0));
-    
+
     SelectObject(hdc, monoFont);
     SetTextColor(hdc, RGB(255, 255, 255));
     SetBkColor(hdc, RGB(0, 0, 0));
 
     m_ScriptSystem->SetScreenDC(hdc);
     m_ScriptSystem->HookFrameDrawn()->InvokeAll();
-    
+
     ReleaseDC(hMainWnd, hdc);
 }

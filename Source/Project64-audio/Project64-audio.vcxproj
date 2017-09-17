@@ -13,7 +13,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{D233025A-231F-4A43-92B6-E87193C60ACC}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>PluginAudio</RootNamespace>
+    <RootNamespace>Project64-audio</RootNamespace>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -25,10 +25,10 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <PropertyGroup>
-    <TargetName>AndroidAudio</TargetName>
-    <TargetName Condition="'$(Configuration)'=='Debug'">AndroidAudio_d</TargetName>
+    <TargetName>Project64-Audio</TargetName>
+    <TargetName Condition="'$(Configuration)'=='Debug'">Project64-Audio_d</TargetName>
     <OutDir>$(SolutionDir)Plugin\Audio\</OutDir>
-    <OutDir Condition="'$(Platform)'=='x64'">$(SolutionDir)Plugin64\AndroidAudio\</OutDir>
+    <OutDir Condition="'$(Platform)'=='x64'">$(SolutionDir)Plugin64\Audio\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
@@ -36,22 +36,27 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AudioMain.cpp" />
     <ClCompile Include="AudioSettings.cpp" />
-    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Driver\OpenSLES.cpp" />
+    <ClCompile Include="Driver\SoundBase.cpp" />
     <ClCompile Include="trace.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AudioMain.h" />
     <ClInclude Include="Audio_1.1.h" />
     <ClInclude Include="AudioSettings.h" />
-    <ClInclude Include="main.h" />
+    <ClInclude Include="Driver\OpenSLES.h" />
+    <ClInclude Include="Driver\SoundBase.h" />
+    <ClInclude Include="SettingsID.h" />
     <ClInclude Include="trace.h" />
     <ClInclude Include="Version.h" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Common\Common.vcxproj">
+    <ProjectReference Include="..\Common\Common.vcxproj">
       <Project>{b4a4b994-9111-42b1-93c2-6f1ca8bc4421}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\Settings\Settings.vcxproj">
+    <ProjectReference Include="..\Settings\Settings.vcxproj">
       <Project>{8b9961b1-88d9-4ea3-a752-507a00dd9f3d}</Project>
     </ProjectReference>
   </ItemGroup>

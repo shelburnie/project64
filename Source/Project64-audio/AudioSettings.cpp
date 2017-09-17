@@ -1,17 +1,17 @@
 /****************************************************************************
- *                                                                          *
- * Project64 - A Nintendo 64 emulator.                                      *
- * http://www.pj64-emu.com/                                                 *
- * Copyright (C) 2016 Project64. All rights reserved.                       *
- *                                                                          *
- * License:                                                                 *
- * GNU/GPLv2 http://www.gnu.org/licenses/gpl-2.0.html                       *
- * version 2 of the License, or (at your option) any later version.         *
- *                                                                          *
- ****************************************************************************/
+*                                                                           *
+* Project64-audio - A Nintendo 64 audio plugin.                             *
+* http://www.pj64-emu.com/                                                  *
+* Copyright (C) 2017 Project64. All rights reserved.                        *
+*                                                                           *
+* License:                                                                  *
+* GNU/GPLv2 http://www.gnu.org/licenses/gpl-2.0.html                        *
+*                                                                           *
+****************************************************************************/
+#include "SettingsID.h"
 #include "AudioSettings.h"
 #include "trace.h"
-#include "main.h"
+#include "AudioMain.h"
 
 short Set_EnableAudio = 0;
 extern bool g_AudioEnabled;
@@ -32,7 +32,7 @@ void SetupAudioSettings(void)
     RegisterSetting(Logging_LogAudioInitShutdown, Data_DWORD_General, "AudioInitShutdown", "Logging", g_ModuleLogLevel[TraceAudioInitShutdown], NULL);
     RegisterSetting(Logging_LogAudioInterface, Data_DWORD_General, "AudioInterface", "Logging", g_ModuleLogLevel[TraceAudioInterface], NULL);
 
-    g_SwapChannels = GetSetting(Output_SwapChannels);
+    g_SwapChannels = GetSetting(Output_SwapChannels) != 0;
     g_GameFreq = GetSetting(Output_DefaultFrequency);
 
     g_ModuleLogLevel[TraceAudioInitShutdown] = GetSetting(Logging_LogAudioInitShutdown);

@@ -1,18 +1,18 @@
 /****************************************************************************
- *                                                                          *
- * Project64 - A Nintendo 64 emulator.                                      *
- * http://www.pj64-emu.com/                                                 *
- * Copyright (C) 2016 Project64. All rights reserved.                       *
- *                                                                          *
- * License:                                                                 *
- * GNU/GPLv2 http://www.gnu.org/licenses/gpl-2.0.html                       *
- * version 2 of the License, or (at your option) any later version.         *
- *                                                                          *
- ****************************************************************************/
- #include "trace.h"
+*                                                                           *
+* Project64-audio - A Nintendo 64 audio plugin.                             *
+* http://www.pj64-emu.com/                                                  *
+* Copyright (C) 2017 Project64. All rights reserved.                        *
+*                                                                           *
+* License:                                                                  *
+* GNU/GPLv2 http://www.gnu.org/licenses/gpl-2.0.html                        *
+*                                                                           *
+****************************************************************************/
+#include "trace.h"
+#include <Settings/Settings.h>
 #include <Common/path.h>
 #include <Common/LogClass.h>
-#include <Settings/Settings.h>
+#include "AudioSettings.h"
 
 #ifdef ANDROID
 #include <android/log.h>
@@ -61,7 +61,11 @@ void SetupTrace(void)
 #endif
     TraceSetModuleName(TraceAudioInitShutdown, "AudioInitShutdown");
     TraceSetModuleName(TraceAudioInterface, "AudioInterface");
- 
+    TraceSetModuleName(TraceAudioDriver, "AudioDriver");
+}
+
+void StartTrace(void)
+{
     char log_dir[260];
     memset(log_dir, 0, sizeof(log_dir));
     short logDirSetting = FindSystemSettingId("Dir:Log");
@@ -76,7 +80,7 @@ void SetupTrace(void)
         return;
     }
 
-    CPath LogFilePath(log_dir,"PluginAudio.log");
+    CPath LogFilePath(log_dir, "Project64-audio.log");
     if (!LogFilePath.DirectoryExists())
     {
         LogFilePath.DirectoryCreate();
